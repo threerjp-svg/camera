@@ -15,50 +15,22 @@ html,body{
   -webkit-tap-highlight-color:transparent;
   -webkit-touch-callout:none;user-select:none;
 }
-#app{
-  width:100%;height:100%;
-  display:flex;flex-direction:column;
-  background:#000;
-  align-items:center;
-}
-
-/* ビューファインダー領域：幅全体、高さはflexで残り全部 */
+#app{width:100%;height:100%;display:flex;flex-direction:column;background:#000;align-items:center;}
 #vf-area{
   width:100%;flex:1;min-height:0;
-  position:relative;
-  background:#000;
-  display:flex;align-items:center;justify-content:center;
-  overflow:hidden;
+  position:relative;background:#000;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
 }
-
-/* 実際のビューファインダーボックス：アスペクト比に合わせてサイズ決定 */
-#vf-box{
-  position:relative;
-  background:#111;
-  overflow:hidden;
-  /* サイズはJSで設定 */
-}
-
-#video{
-  width:100%;height:100%;
-  object-fit:cover;display:block;
-}
+#vf-box{position:relative;background:#111;overflow:hidden;}
+#video{width:100%;height:100%;object-fit:cover;display:block;}
 #canvas{display:none;}
-
-/* グリッド */
 .gl{position:absolute;background:rgba(255,255,255,0.18);}
 .gv{width:0.5px;top:0;bottom:0;}
 .gh{height:0.5px;left:0;right:0;}
-
-#flash{
-  position:absolute;inset:0;background:#fff;
-  opacity:0;pointer-events:none;z-index:10;
-}
-
-/* 上部オーバーレイ情報 */
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
 #topbar{
   position:absolute;top:0;left:0;right:0;
-  display:flex;justify-content:space-between;
+  display:flex;justify-content:space-between;align-items:center;
   padding:8px 12px;z-index:5;
   background:linear-gradient(to bottom,rgba(0,0,0,0.45),transparent);
 }
@@ -66,104 +38,77 @@ html,body{
 #shot-count{
   position:absolute;bottom:8px;left:12px;
   background:rgba(0,0,0,0.45);color:#fff;
-  font-size:11px;padding:2px 8px;border-radius:10px;
-  z-index:5;display:none;
+  font-size:11px;padding:2px 8px;border-radius:10px;z-index:5;display:none;
 }
-
-/* 権限 */
 #perm{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;
+  position:absolute;inset:0;display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  gap:14px;color:rgba(255,255,255,0.65);
-  font-size:14px;text-align:center;padding:32px;
-  z-index:20;background:#111;
+  gap:14px;color:rgba(255,255,255,0.65);font-size:14px;
+  text-align:center;padding:32px;z-index:20;background:#111;
 }
 #start-btn{
-  background:#fff;color:#000;border:none;
-  border-radius:28px;padding:13px 30px;
-  font-size:15px;font-weight:600;cursor:pointer;
-  margin-top:6px;-webkit-appearance:none;
+  background:#fff;color:#000;border:none;border-radius:28px;
+  padding:13px 30px;font-size:15px;font-weight:600;
+  cursor:pointer;margin-top:6px;-webkit-appearance:none;
 }
-
-/* コントロールパネル */
 #ctrl{
   width:100%;background:#0a0a0a;
   padding:7px 16px calc(env(safe-area-inset-bottom,8px) + 6px);
-  display:flex;flex-direction:column;gap:5px;
-  flex-shrink:0;
+  display:flex;flex-direction:column;gap:5px;flex-shrink:0;
 }
 .row{display:flex;justify-content:center;gap:5px;align-items:center;flex-wrap:wrap;}
 .p{
   background:rgba(255,255,255,0.1);
   border:0.5px solid rgba(255,255,255,0.18);
-  color:rgba(255,255,255,0.6);
-  border-radius:16px;padding:4px 11px;
-  font-size:10px;font-weight:500;
-  cursor:pointer;-webkit-appearance:none;
-  white-space:nowrap;transition:all 0.15s;
+  color:rgba(255,255,255,0.6);border-radius:16px;
+  padding:4px 11px;font-size:10px;font-weight:500;
+  cursor:pointer;-webkit-appearance:none;white-space:nowrap;transition:all 0.15s;
 }
 .p.on{background:#fff;color:#000;border-color:#fff;}
+.p.torch-on{background:#FFD700;color:#000;border-color:#FFD700;}
 .sep{height:0.5px;background:rgba(255,255,255,0.07);}
-
-/* シャッター行 */
-#srow{
-  display:flex;align-items:center;
-  justify-content:space-between;
-  padding:4px 6px 0;
-}
+#srow{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 0;}
 #thumb{
   width:48px;height:48px;border-radius:9px;
   background:rgba(255,255,255,0.1);overflow:hidden;
   border:0.5px solid rgba(255,255,255,0.2);
-  cursor:pointer;display:flex;
-  align-items:center;justify-content:center;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
 }
 #timg{width:100%;height:100%;object-fit:cover;display:none;}
 #shutter{
   width:68px;height:68px;border-radius:50%;
   background:transparent;border:3px solid #fff;
-  cursor:pointer;display:flex;align-items:center;
-  justify-content:center;-webkit-appearance:none;
-  transition:transform 0.1s;position:relative;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  -webkit-appearance:none;transition:transform 0.1s;position:relative;
 }
 #shutter:active{transform:scale(0.92);}
-#shutter::after{
-  content:'';width:56px;height:56px;
-  border-radius:50%;background:#fff;
-}
+#shutter::after{content:'';width:56px;height:56px;border-radius:50%;background:#fff;}
 #flip{
   width:48px;height:48px;border-radius:50%;
   background:rgba(255,255,255,0.15);border:none;
-  cursor:pointer;display:flex;align-items:center;
-  justify-content:center;-webkit-appearance:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-appearance:none;
 }
 
 /* 保存モーダル */
 #modal{
   display:none;position:fixed;inset:0;z-index:100;
-  background:rgba(0,0,0,0.93);
-  flex-direction:column;align-items:center;
-  justify-content:center;gap:14px;padding:20px;
+  background:rgba(0,0,0,0.95);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:20px;
 }
 #modal.show{display:flex;}
-#mimg{
-  max-width:100%;max-height:62vh;
-  border-radius:10px;object-fit:contain;
-}
-#modal .msg{
-  color:#fff;font-size:15px;
-  text-align:center;line-height:1.8;
-}
-#modal .sub{
-  color:rgba(255,255,255,0.45);
-  font-size:11px;text-align:center;line-height:1.6;
+#mimg{max-width:100%;max-height:58vh;border-radius:10px;object-fit:contain;}
+#modal .msg{color:#fff;font-size:14px;text-align:center;line-height:1.8;}
+#modal .sub{color:rgba(255,255,255,0.4);font-size:11px;text-align:center;line-height:1.6;}
+#save-btn{
+  background:#FFD700;color:#000;border:none;
+  border-radius:22px;padding:13px 32px;
+  font-size:15px;font-weight:700;cursor:pointer;-webkit-appearance:none;
 }
 #mclose{
-  background:rgba(255,255,255,0.15);color:#fff;
-  border:none;border-radius:22px;padding:11px 28px;
-  font-size:14px;cursor:pointer;-webkit-appearance:none;
-  margin-top:4px;
+  background:rgba(255,255,255,0.12);color:#fff;border:none;
+  border-radius:22px;padding:10px 28px;
+  font-size:13px;cursor:pointer;-webkit-appearance:none;
 }
 </style>
 </head>
@@ -210,6 +155,8 @@ html,body{
       </div>
       <div style="width:1px;height:14px;background:rgba(255,255,255,0.12);margin:0 4px;"></div>
       <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
+      <div style="width:1px;height:14px;background:rgba(255,255,255,0.12);margin:0 4px;"></div>
+      <button class="p" id="torchbtn" onclick="toggleTorch()">🔦 OFF</button>
     </div>
     <div class="row" id="tsrow">
       <button class="p on" onclick="setTSP('left')">左下</button>
@@ -239,8 +186,9 @@ html,body{
 <!-- 保存モーダル -->
 <div id="modal">
   <img id="mimg" src="" alt="撮影写真"/>
-  <p class="msg">写真を長押し<br>→「写真に追加」でカメラロールへ保存</p>
-  <p class="sub">※ iOSの仕様上、長押し保存が唯一の方法です<br>保存後に「閉じる」を押してください</p>
+  <p class="msg">📥 下のボタンで保存<br>または写真を長押し →「写真に追加」</p>
+  <p class="sub" id="save-hint"></p>
+  <button id="save-btn" onclick="savePhoto()">💾 写真を保存</button>
   <button id="mclose" onclick="closeM()">閉じる</button>
 </div>
 
@@ -248,38 +196,28 @@ html,body{
 <script>
 let stream=null, facing='environment';
 let curR='3:4', curMP=3, tsPos='left', tsOn=true;
-let shotN=0, lastUrl=null;
+let shotN=0, lastUrl=null, lastBlob=null;
+let torchOn=false, torchSupported=false;
 
 const video=document.getElementById('video');
 const canvas=document.getElementById('canvas');
 const flash=document.getElementById('flash');
 const shotEl=document.getElementById('shot-count');
 
-// アスペクト比：幅/高さ（縦向き）
 const ratios={'1:1':1,'3:4':3/4,'2:3':2/3};
-
-// 出力画素数（縦向き: w<h）
 const mpSz={
   2:{w:1200,h:1600},
   3:{w:1536,h:2048},
   5:{w:1944,h:2592}
 };
 
-// ビューファインダーのサイズをアスペクト比通りに設定
 function updateVF(){
   const area=document.getElementById('vf-area');
   const box=document.getElementById('vf-box');
-  const aW=area.offsetWidth;
-  const aH=area.offsetHeight;
-  const r=ratios[curR]; // w/h
-  // 縦長なのでaH基準で幅を決める
-  let bW=Math.floor(aH*r);
-  let bH=aH;
-  if(bW>aW){
-    // 幅が画面より大きくなる場合は幅基準
-    bW=aW;
-    bH=Math.floor(aW/r);
-  }
+  const aW=area.offsetWidth, aH=area.offsetHeight;
+  const r=ratios[curR];
+  let bW=Math.floor(aH*r), bH=aH;
+  if(bW>aW){bW=aW;bH=Math.floor(aW/r);}
   box.style.width=bW+'px';
   box.style.height=bH+'px';
 }
@@ -287,28 +225,55 @@ function updateVF(){
 async function startCam(){
   try{
     stream=await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:{ideal:facing},
-        width:{ideal:1920},
-        height:{ideal:1080}
-      },
+      video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},
       audio:false
     });
     video.srcObject=stream;
     document.getElementById('perm').style.display='none';
     shotEl.style.display='block';
     setTimeout(updateVF,300);
+    checkTorchSupport();
   }catch(e){
     document.getElementById('permtxt').textContent=
       'カメラが起動できませんでした。\nSafari設定→カメラを「許可」に変更してください。';
   }
 }
 
+function checkTorchSupport(){
+  if(!stream) return;
+  const track=stream.getVideoTracks()[0];
+  if(!track) return;
+  const caps=track.getCapabilities ? track.getCapabilities() : {};
+  torchSupported=!!(caps.torch);
+  const btn=document.getElementById('torchbtn');
+  btn.style.opacity=torchSupported?'1':'0.3';
+  btn.title=torchSupported?'':'このデバイスでは非対応';
+}
+
+async function toggleTorch(){
+  if(!stream) return;
+  const track=stream.getVideoTracks()[0];
+  if(!track) return;
+  if(!torchSupported){
+    alert('このデバイス/ブラウザではライト機能に対応していません');
+    return;
+  }
+  try{
+    torchOn=!torchOn;
+    await track.applyConstraints({advanced:[{torch:torchOn}]});
+    const btn=document.getElementById('torchbtn');
+    btn.textContent=torchOn?'🔦 ON':'🔦 OFF';
+    btn.classList.toggle('torch-on',torchOn);
+  }catch(e){
+    alert('ライトの制御に失敗しました');
+    torchOn=false;
+  }
+}
+
 function setR(r){
   curR=r;
   document.getElementById('rlabel').textContent=r;
-  document.querySelectorAll('#rrow .p').forEach(b=>
-    b.classList.toggle('on',b.textContent===r));
+  document.querySelectorAll('#rrow .p').forEach(b=>b.classList.toggle('on',b.textContent===r));
   updateVF();
 }
 
@@ -317,15 +282,13 @@ function setMP(mp){
   const lbl={2:'約200万画素',3:'約300万画素',5:'約500万画素'};
   const btn={2:'200万',3:'300万',5:'500万'};
   document.getElementById('mplabel').textContent=lbl[mp];
-  document.querySelectorAll('#mprow .p').forEach(b=>
-    b.classList.toggle('on',b.textContent===btn[mp]));
+  document.querySelectorAll('#mprow .p').forEach(b=>b.classList.toggle('on',b.textContent===btn[mp]));
 }
 
 function setTSP(p){
   tsPos=p;
   const m={left:'左下',center:'中央下',right:'右下'};
-  document.querySelectorAll('#tsrow .p').forEach(b=>
-    b.classList.toggle('on',b.textContent===m[p]));
+  document.querySelectorAll('#tsrow .p').forEach(b=>b.classList.toggle('on',b.textContent===m[p]));
 }
 
 function toggleTS(){
@@ -349,59 +312,33 @@ function shoot(){
   flash.style.opacity='0.85';
   setTimeout(()=>{flash.style.opacity='0';},100);
 
-  // 出力サイズ（縦向き）
   const sz=mpSz[curMP];
-  const ratio=ratios[curR]; // w/h
+  const ratio=ratios[curR];
   let outW=sz.w, outH=sz.h;
-  // アスペクト比補正
   if(Math.abs(outW/outH-ratio)>0.005){
     if(outW/outH>ratio) outW=Math.round(outH*ratio);
     else outH=Math.round(outW/ratio);
   }
-
-  canvas.width=outW;
-  canvas.height=outH;
+  canvas.width=outW; canvas.height=outH;
   const ctx=canvas.getContext('2d');
-
-  // iOSはカメラフレームを常に横長で渡す（vw>vh）
-  // → 90度回転して縦向きに変換する
-  const isLandscapeFrame=(vw>vh);
-
+  const isLand=(vw>vh);
   ctx.save();
-  if(isLandscapeFrame){
-    // キャンバス中心に移動
-    ctx.translate(outW/2, outH/2);
-    if(facing==='user'){
-      // 前面カメラ: 反時計回り90度 + 左右反転なし（鏡像補正済み）
-      ctx.rotate(-Math.PI/2);
-      ctx.scale(-1,1);
-    }else{
-      // 背面カメラ: 反時計回り90度
-      ctx.rotate(-Math.PI/2);
-    }
-    // 回転後: vwが縦方向、vhが横方向
-    // outWに対応するのがvh、outHに対応するのがvw
-    const scaleX=outH/vw;
-    const scaleY=outW/vh;
-    const scale=Math.max(scaleX,scaleY);
-    ctx.drawImage(video,
-      -vw/2,-vh/2,vw,vh
-    );
-    // ↑シンプルに中央描画、scaleで合わせる
+  if(isLand){
+    ctx.translate(outW/2,outH/2);
+    if(facing==='user'){ctx.rotate(-Math.PI/2);ctx.scale(-1,1);}
+    else{ctx.rotate(-Math.PI/2);}
+    const scale=Math.max(outH/vw,outW/vh);
+    ctx.drawImage(video,-vw/2,-vh/2,vw,vh);
   }else{
-    // 縦フレームの場合はそのまま
     const cR=outW/outH, vR=vw/vh;
     let sx,sy,sw,sh;
     if(vR>cR){sh=vh;sw=Math.round(vh*cR);sy=0;sx=Math.round((vw-sw)/2);}
     else{sw=vw;sh=Math.round(vw/cR);sx=0;sy=Math.round((vh-sh)/2);}
-    if(facing==='user'){
-      ctx.translate(outW,0);ctx.scale(-1,1);
-    }
+    if(facing==='user'){ctx.translate(outW,0);ctx.scale(-1,1);}
     ctx.drawImage(video,sx,sy,sw,sh,0,0,outW,outH);
   }
   ctx.restore();
 
-  // タイムスタンプ
   if(tsOn){
     const ts=getTS();
     const fs=Math.round(outW*0.036);
@@ -419,7 +356,14 @@ function shoot(){
     ctx.shadowBlur=0;
   }
 
-  lastUrl=canvas.toDataURL('image/jpeg',0.93);
+  // JPEG として生成
+  lastUrl=canvas.toDataURL('image/jpeg', 0.92);
+
+  // Blob も作成（Web Share API用）
+  canvas.toBlob(blob=>{
+    lastBlob=blob;
+  },'image/jpeg',0.92);
+
   shotN++;
   shotEl.textContent=shotN+'枚';
   const ti=document.getElementById('timg');
@@ -429,9 +373,47 @@ function shoot(){
   openM();
 }
 
+async function savePhoto(){
+  if(!lastUrl) return;
+  const hint=document.getElementById('save-hint');
+
+  // 方法1: Web Share API（iOS Safari で最も確実）
+  if(navigator.share && lastBlob){
+    try{
+      const file=new File([lastBlob],'photo_'+Date.now()+'.jpg',{type:'image/jpeg'});
+      await navigator.share({files:[file],title:'写真'});
+      hint.textContent='✅ 共有メニューから「写真に保存」を選んでください';
+      return;
+    }catch(e){
+      if(e.name==='AbortError') return; // ユーザーがキャンセル
+    }
+  }
+
+  // 方法2: <a download>（Android/PCで動作）
+  try{
+    const a=document.createElement('a');
+    a.href=lastUrl;
+    a.download='photo_'+Date.now()+'.jpg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    hint.textContent='✅ ダウンロードフォルダを確認してください';
+    return;
+  }catch(e){}
+
+  // 方法3: 新しいタブで開く（最終手段）
+  const w=window.open();
+  if(w){
+    w.document.write('<html><head><meta name="viewport" content="width=device-width"><title>写真</title></head><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+lastUrl+'" style="max-width:100%;"></body></html>');
+    w.document.close();
+    hint.textContent='長押し →「写真に追加」で保存してください';
+  }
+}
+
 function openM(){
-  if(!lastUrl)return;
+  if(!lastUrl) return;
   document.getElementById('mimg').src=lastUrl;
+  document.getElementById('save-hint').textContent='';
   document.getElementById('modal').classList.add('show');
 }
 function closeM(){
@@ -439,6 +421,14 @@ function closeM(){
 }
 
 async function flipCam(){
+  // ライトをOFFにしてからカメラ切替
+  if(torchOn){
+    const track=stream&&stream.getVideoTracks()[0];
+    if(track) try{await track.applyConstraints({advanced:[{torch:false}]});}catch(e){}
+    torchOn=false;
+    document.getElementById('torchbtn').textContent='🔦 OFF';
+    document.getElementById('torchbtn').classList.remove('torch-on');
+  }
   facing=facing==='environment'?'user':'environment';
   if(stream){
     stream.getTracks().forEach(t=>t.stop());
@@ -448,6 +438,7 @@ async function flipCam(){
         audio:false
       });
       video.srcObject=stream;
+      setTimeout(checkTorchSupport,500);
     }catch(e){}
   }
 }
