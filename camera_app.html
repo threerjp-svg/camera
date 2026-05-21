@@ -9,18 +9,9 @@
 <title>カメラ</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html,body{
-  width:100%;height:100%;background:#000;overflow:hidden;
-  font-family:-apple-system,'SF Pro Display',sans-serif;
-  -webkit-tap-highlight-color:transparent;
-  -webkit-touch-callout:none;user-select:none;
-}
+html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;}
 #app{width:100%;height:100%;display:flex;flex-direction:column;background:#000;align-items:center;}
-#vf-area{
-  width:100%;flex:1;min-height:0;
-  position:relative;background:#000;
-  display:flex;align-items:center;justify-content:center;overflow:hidden;
-}
+#vf-area{width:100%;flex:1;min-height:0;position:relative;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 #vf-box{position:relative;background:#111;overflow:hidden;}
 #video{width:100%;height:100%;object-fit:cover;display:block;}
 #canvas{display:none;}
@@ -28,88 +19,31 @@ html,body{
 .gv{width:0.5px;top:0;bottom:0;}
 .gh{height:0.5px;left:0;right:0;}
 #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
-#topbar{
-  position:absolute;top:0;left:0;right:0;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:8px 12px;z-index:5;
-  background:linear-gradient(to bottom,rgba(0,0,0,0.45),transparent);
-}
-#topbar span{color:#fff;font-size:11px;font-weight:500;opacity:0.9;}
-#shot-count{
-  position:absolute;bottom:8px;left:12px;
-  background:rgba(0,0,0,0.45);color:#fff;
-  font-size:11px;padding:2px 8px;border-radius:10px;z-index:5;display:none;
-}
-#perm{
-  position:absolute;inset:0;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  gap:14px;color:rgba(255,255,255,0.65);font-size:14px;
-  text-align:center;padding:32px;z-index:20;background:#111;
-}
-#start-btn{
-  background:#fff;color:#000;border:none;border-radius:28px;
-  padding:13px 30px;font-size:15px;font-weight:600;
-  cursor:pointer;margin-top:6px;-webkit-appearance:none;
-}
-#ctrl{
-  width:100%;background:#0a0a0a;
-  padding:7px 16px calc(env(safe-area-inset-bottom,8px) + 6px);
-  display:flex;flex-direction:column;gap:5px;flex-shrink:0;
-}
+#topbar{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;z-index:5;background:linear-gradient(to bottom,rgba(0,0,0,0.45),transparent);}
+#topbar span{color:#fff;font-size:11px;font-weight:500;}
+#shot-count{position:absolute;bottom:8px;left:12px;background:rgba(0,0,0,0.45);color:#fff;font-size:11px;padding:2px 8px;border-radius:10px;z-index:5;display:none;}
+#perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:rgba(255,255,255,0.65);font-size:14px;text-align:center;padding:32px;z-index:20;background:#111;}
+#start-btn{background:#fff;color:#000;border:none;border-radius:28px;padding:13px 30px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
+#ctrl{width:100%;background:#0a0a0a;padding:7px 16px calc(env(safe-area-inset-bottom,8px) + 6px);display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
 .row{display:flex;justify-content:center;gap:5px;align-items:center;flex-wrap:wrap;}
-.p{
-  background:rgba(255,255,255,0.1);
-  border:0.5px solid rgba(255,255,255,0.18);
-  color:rgba(255,255,255,0.6);border-radius:16px;
-  padding:4px 11px;font-size:10px;font-weight:500;
-  cursor:pointer;-webkit-appearance:none;white-space:nowrap;transition:all 0.15s;
-}
+.p{background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);border-radius:16px;padding:4px 11px;font-size:10px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
 .p.on{background:#fff;color:#000;border-color:#fff;}
-.p.torch-on{background:#FFD700;color:#000;border-color:#FFD700;}
+.p.ton{background:#FFD700;color:#000;border-color:#FFD700;}
 .sep{height:0.5px;background:rgba(255,255,255,0.07);}
 #srow{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 0;}
-#thumb{
-  width:48px;height:48px;border-radius:9px;
-  background:rgba(255,255,255,0.1);overflow:hidden;
-  border:0.5px solid rgba(255,255,255,0.2);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-}
+#thumb{width:48px;height:48px;border-radius:9px;background:rgba(255,255,255,0.1);overflow:hidden;border:0.5px solid rgba(255,255,255,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #timg{width:100%;height:100%;object-fit:cover;display:none;}
-#shutter{
-  width:68px;height:68px;border-radius:50%;
-  background:transparent;border:3px solid #fff;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  -webkit-appearance:none;transition:transform 0.1s;position:relative;
-}
+#shutter{width:68px;height:68px;border-radius:50%;background:transparent;border:3px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.1s;position:relative;}
 #shutter:active{transform:scale(0.92);}
 #shutter::after{content:'';width:56px;height:56px;border-radius:50%;background:#fff;}
-#flip{
-  width:48px;height:48px;border-radius:50%;
-  background:rgba(255,255,255,0.15);border:none;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-appearance:none;
-}
-
-/* 保存モーダル */
-#modal{
-  display:none;position:fixed;inset:0;z-index:100;
-  background:rgba(0,0,0,0.95);
-  flex-direction:column;align-items:center;justify-content:center;
-  gap:12px;padding:20px;
-}
+#flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;}
 #modal.show{display:flex;}
 #mimg{max-width:100%;max-height:58vh;border-radius:10px;object-fit:contain;}
 #modal .msg{color:#fff;font-size:14px;text-align:center;line-height:1.8;}
 #modal .sub{color:rgba(255,255,255,0.4);font-size:11px;text-align:center;line-height:1.6;}
-#save-btn{
-  background:#FFD700;color:#000;border:none;
-  border-radius:22px;padding:13px 32px;
-  font-size:15px;font-weight:700;cursor:pointer;-webkit-appearance:none;
-}
-#mclose{
-  background:rgba(255,255,255,0.12);color:#fff;border:none;
-  border-radius:22px;padding:10px 28px;
-  font-size:13px;cursor:pointer;-webkit-appearance:none;
-}
+#save-btn{background:#FFD700;color:#000;border:none;border-radius:22px;padding:13px 32px;font-size:15px;font-weight:700;cursor:pointer;}
+#mclose{background:rgba(255,255,255,0.12);color:#fff;border:none;border-radius:22px;padding:10px 28px;font-size:13px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -184,10 +118,9 @@ html,body{
   </div>
 </div>
 
-<!-- 保存モーダル -->
 <div id="modal">
   <img id="mimg" src="" alt="撮影写真"/>
-  <p class="msg">📥 下のボタンで保存<br>または写真を長押し →「写真に追加」</p>
+  <p class="msg">写真を長押し →「写真に追加」で保存<br>または下のボタンをタップ</p>
   <p class="sub" id="save-hint"></p>
   <button id="save-btn" onclick="savePhoto()">💾 写真を保存</button>
   <button id="mclose" onclick="closeM()">閉じる</button>
@@ -195,268 +128,289 @@ html,body{
 
 <canvas id="canvas"></canvas>
 <script>
-let stream=null, facing='environment';
-let curR='3:4', curMP=3, tsPos='left', tsOn=true;
-let shotN=0, lastUrl=null, lastBlob=null;
-let torchOn=false, torchSupported=false;
+var stream = null;
+var facing = 'environment';
+var curR = '3:4';
+var curMP = 3;
+var tsPos = 'left';
+var tsOn = true;
+var shotN = 0;
+var lastUrl = null;
+var lastBlob = null;
+var torchOn = false;
+var torchSupported = false;
 
-const video=document.getElementById('video');
-const canvas=document.getElementById('canvas');
-const flash=document.getElementById('flash');
-const shotEl=document.getElementById('shot-count');
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+var flash = document.getElementById('flash');
+var shotEl = document.getElementById('shot-count');
 
-const ratios={'1:1':1,'3:4':3/4,'2:3':2/3};
-const mpSz={
+var ratios = {'1:1':1,'3:4':0.75,'2:3':0.6667};
+var mpSz = {
   2:{w:1200,h:1600},
   3:{w:1536,h:2048},
   5:{w:1944,h:2592},
-  12:{w:3024,h:4032}  // 約1200万画素（iPhone XS最大相当）
+  12:{w:3024,h:4032}
 };
 
-function updateVF(){
-  const area=document.getElementById('vf-area');
-  const box=document.getElementById('vf-box');
-  const aW=area.offsetWidth, aH=area.offsetHeight;
-  const r=ratios[curR];
-  let bW=Math.floor(aH*r), bH=aH;
-  if(bW>aW){bW=aW;bH=Math.floor(aW/r);}
-  box.style.width=bW+'px';
-  box.style.height=bH+'px';
+function updateVF() {
+  var area = document.getElementById('vf-area');
+  var box = document.getElementById('vf-box');
+  var aW = area.offsetWidth;
+  var aH = area.offsetHeight;
+  var r = ratios[curR];
+  var bW = Math.floor(aH * r);
+  var bH = aH;
+  if (bW > aW) { bW = aW; bH = Math.floor(aW / r); }
+  box.style.width = bW + 'px';
+  box.style.height = bH + 'px';
 }
 
-async function startCam(){
-  try{
-    var constraints;
-    if(curMP===12){
-      constraints={video:{facingMode:{ideal:facing},width:{ideal:4032},height:{ideal:3024}},audio:false};
-    }else{
-      constraints={video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},audio:false};
-    }
-    stream=await navigator.mediaDevices.getUserMedia(constraints);
-    video.srcObject=stream;
-    document.getElementById('perm').style.display='none';
-    shotEl.style.display='block';
-    setTimeout(updateVF,300);
-    checkTorchSupport();
-  }catch(e){
-    document.getElementById('permtxt').textContent=
-      'カメラが起動できませんでした。\nSafari設定→カメラを「許可」に変更してください。';
-  }
+function getCamConstraints() {
+  var w = curMP === 12 ? 4032 : 1920;
+  var h = curMP === 12 ? 3024 : 1080;
+  return {
+    video: {
+      facingMode: { ideal: facing },
+      width: { ideal: w },
+      height: { ideal: h }
+    },
+    audio: false
+  };
 }
 
-function checkTorchSupport(){
-  if(!stream) return;
-  const track=stream.getVideoTracks()[0];
-  if(!track) return;
-  const caps=track.getCapabilities ? track.getCapabilities() : {};
-  torchSupported=!!(caps.torch);
-  const btn=document.getElementById('torchbtn');
-  btn.style.opacity=torchSupported?'1':'0.3';
-  btn.title=torchSupported?'':'このデバイスでは非対応';
+function startCam() {
+  navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+    stream = s;
+    video.srcObject = stream;
+    document.getElementById('perm').style.display = 'none';
+    shotEl.style.display = 'block';
+    setTimeout(updateVF, 300);
+    setTimeout(checkTorch, 500);
+  }).catch(function(e) {
+    document.getElementById('permtxt').textContent =
+      'カメラが起動できませんでした。Safari設定→カメラを「許可」にしてください。';
+  });
 }
 
-async function toggleTorch(){
-  if(!stream) return;
-  const track=stream.getVideoTracks()[0];
-  if(!track) return;
-  if(!torchSupported){
-    alert('このデバイス/ブラウザではライト機能に対応していません');
+function checkTorch() {
+  if (!stream) return;
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
+  var caps = track.getCapabilities ? track.getCapabilities() : {};
+  torchSupported = !!caps.torch;
+}
+
+function toggleTorch() {
+  if (!stream) return;
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
+  if (!torchSupported) {
+    alert('このデバイスではライト機能に対応していません');
     return;
   }
-  try{
-    torchOn=!torchOn;
-    await track.applyConstraints({advanced:[{torch:torchOn}]});
-    const btn=document.getElementById('torchbtn');
-    btn.textContent=torchOn?'🔦 ON':'🔦 OFF';
-    btn.classList.toggle('torch-on',torchOn);
-  }catch(e){
+  torchOn = !torchOn;
+  track.applyConstraints({ advanced: [{ torch: torchOn }] }).then(function() {
+    var btn = document.getElementById('torchbtn');
+    btn.textContent = torchOn ? '🔦 ON' : '🔦 OFF';
+    btn.className = torchOn ? 'p ton' : 'p';
+  }).catch(function() {
+    torchOn = false;
     alert('ライトの制御に失敗しました');
-    torchOn=false;
-  }
+  });
 }
 
-function setR(r){
-  curR=r;
-  document.getElementById('rlabel').textContent=r;
-  document.querySelectorAll('#rrow .p').forEach(b=>b.classList.toggle('on',b.textContent===r));
+function setR(r) {
+  curR = r;
+  document.getElementById('rlabel').textContent = r;
+  var btns = document.querySelectorAll('#rrow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === r ? 'p on' : 'p';
+  }
   updateVF();
 }
 
-function setMP(mp){
-  curMP=mp;
-  const lbl={2:'約200万画素',3:'約300万画素',5:'約500万画素',12:'約1200万画素'};
-  const btn={2:'200万',3:'300万',5:'500万',12:'1200万'};
-  document.getElementById('mplabel').textContent=lbl[mp];
-  document.querySelectorAll('#mprow .p').forEach(b=>b.classList.toggle('on',b.textContent===btn[mp]));
-  // ストリーム起動済みの場合のみ再起動
-  if(stream && stream.active) restartCam();
-}
-
-async function restartCam(){
-  if(stream) stream.getTracks().forEach(t=>t.stop());
-  var constraints;
-  if(curMP===12){
-    constraints={video:{facingMode:{ideal:facing},width:{ideal:4032},height:{ideal:3024}},audio:false};
-  }else{
-    constraints={video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},audio:false};
+function setMP(mp) {
+  curMP = mp;
+  var lbl = {2:'約200万画素',3:'約300万画素',5:'約500万画素',12:'約1200万画素'};
+  var btn = {2:'200万',3:'300万',5:'500万',12:'1200万'};
+  document.getElementById('mplabel').textContent = lbl[mp];
+  var btns = document.querySelectorAll('#mprow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === btn[mp] ? 'p on' : 'p';
   }
-  try{
-    stream=await navigator.mediaDevices.getUserMedia(constraints);
-    video.srcObject=stream;
-    setTimeout(checkTorchSupport,500);
-  }catch(e){}
+  // カメラ起動済みなら再起動
+  if (stream && stream.active) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+    navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+      stream = s;
+      video.srcObject = stream;
+      setTimeout(checkTorch, 500);
+    }).catch(function() {});
+  }
 }
 
-
-  tsPos=p;
-  const m={left:'左下',center:'中央下',right:'右下'};
-  document.querySelectorAll('#tsrow .p').forEach(b=>b.classList.toggle('on',b.textContent===m[p]));
+function setTSP(p) {
+  tsPos = p;
+  var m = {left:'左下',center:'中央下',right:'右下'};
+  var btns = document.querySelectorAll('#tsrow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === m[p] ? 'p on' : 'p';
+  }
 }
 
-function toggleTS(){
-  tsOn=!tsOn;
-  const btn=document.getElementById('tstog');
-  btn.textContent=tsOn?'TS ON':'TS OFF';
-  btn.classList.toggle('on',tsOn);
+function toggleTS() {
+  tsOn = !tsOn;
+  var btn = document.getElementById('tstog');
+  btn.textContent = tsOn ? 'TS ON' : 'TS OFF';
+  btn.className = tsOn ? 'p on' : 'p';
 }
 
-function getTS(){
-  const n=new Date(), p=v=>String(v).padStart(2,'0');
+function getTS() {
+  var n = new Date();
+  var p = function(v) { return String(v).padStart(2,'0'); };
   return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+
     ' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
 }
 
-function shoot(){
-  if(!stream){startCam();return;}
-  const vw=video.videoWidth, vh=video.videoHeight;
-  if(!vw||!vh)return;
+function shoot() {
+  if (!stream) { startCam(); return; }
+  var vw = video.videoWidth;
+  var vh = video.videoHeight;
+  if (!vw || !vh) return;
 
-  flash.style.opacity='0.85';
-  setTimeout(()=>{flash.style.opacity='0';},100);
+  flash.style.opacity = '0.85';
+  setTimeout(function() { flash.style.opacity = '0'; }, 100);
 
-  const sz=mpSz[curMP];
-  const ratio=ratios[curR];
-  let outW=sz.w, outH=sz.h;
-  if(Math.abs(outW/outH-ratio)>0.005){
-    if(outW/outH>ratio) outW=Math.round(outH*ratio);
-    else outH=Math.round(outW/ratio);
+  var sz = mpSz[curMP];
+  var ratio = ratios[curR];
+  var outW = sz.w;
+  var outH = sz.h;
+  if (Math.abs(outW/outH - ratio) > 0.005) {
+    if (outW/outH > ratio) outW = Math.round(outH * ratio);
+    else outH = Math.round(outW / ratio);
   }
-  canvas.width=outW; canvas.height=outH;
-  const ctx=canvas.getContext('2d');
-  const isLand=(vw>vh);
+
+  canvas.width = outW;
+  canvas.height = outH;
+  var ctx = canvas.getContext('2d');
+  var isLand = (vw > vh);
+
   ctx.save();
-  if(isLand){
-    ctx.translate(outW/2,outH/2);
-    if(facing==='user'){ctx.rotate(-Math.PI/2);ctx.scale(-1,1);}
-    else{ctx.rotate(-Math.PI/2);}
-    const scale=Math.max(outH/vw,outW/vh);
-    ctx.drawImage(video,-vw/2,-vh/2,vw,vh);
-  }else{
-    const cR=outW/outH, vR=vw/vh;
-    let sx,sy,sw,sh;
-    if(vR>cR){sh=vh;sw=Math.round(vh*cR);sy=0;sx=Math.round((vw-sw)/2);}
-    else{sw=vw;sh=Math.round(vw/cR);sx=0;sy=Math.round((vh-sh)/2);}
-    if(facing==='user'){ctx.translate(outW,0);ctx.scale(-1,1);}
-    ctx.drawImage(video,sx,sy,sw,sh,0,0,outW,outH);
+  if (isLand) {
+    ctx.translate(outW/2, outH/2);
+    if (facing === 'user') {
+      ctx.rotate(-Math.PI/2);
+      ctx.scale(-1, 1);
+    } else {
+      ctx.rotate(-Math.PI/2);
+    }
+    var scale = Math.max(outH/vw, outW/vh);
+    ctx.drawImage(video, -vw/2, -vh/2, vw, vh);
+  } else {
+    var cR = outW/outH;
+    var vR = vw/vh;
+    var sx, sy, sw, sh;
+    if (vR > cR) { sh=vh; sw=Math.round(vh*cR); sy=0; sx=Math.round((vw-sw)/2); }
+    else { sw=vw; sh=Math.round(vw/cR); sx=0; sy=Math.round((vh-sh)/2); }
+    if (facing === 'user') { ctx.translate(outW,0); ctx.scale(-1,1); }
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH);
   }
   ctx.restore();
 
-  if(tsOn){
-    const ts=getTS();
-    const fs=Math.round(outW*0.036);
-    ctx.font='bold '+fs+'px monospace';
-    const pad=Math.round(outW*0.035);
-    const tw=ctx.measureText(ts).width;
-    let tx;
-    if(tsPos==='left') tx=pad;
-    else if(tsPos==='center') tx=(outW-tw)/2;
-    else tx=outW-tw-pad;
-    ctx.shadowColor='rgba(0,0,0,0.9)';
-    ctx.shadowBlur=fs*0.5;
-    ctx.fillStyle='#FFD700';
-    ctx.fillText(ts,tx,outH-pad);
-    ctx.shadowBlur=0;
+  if (tsOn) {
+    var ts = getTS();
+    var fs = Math.round(outW * 0.036);
+    ctx.font = 'bold ' + fs + 'px monospace';
+    var pad = Math.round(outW * 0.035);
+    var tw = ctx.measureText(ts).width;
+    var tx;
+    if (tsPos === 'left') tx = pad;
+    else if (tsPos === 'center') tx = (outW - tw) / 2;
+    else tx = outW - tw - pad;
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = fs * 0.5;
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText(ts, tx, outH - pad);
+    ctx.shadowBlur = 0;
   }
 
-  // JPEG として生成
-  lastUrl=canvas.toDataURL('image/jpeg', 0.92);
-
-  // Blob も作成（Web Share API用）
-  canvas.toBlob(blob=>{
-    lastBlob=blob;
-  },'image/jpeg',0.92);
+  lastUrl = canvas.toDataURL('image/jpeg', 0.92);
+  canvas.toBlob(function(blob) { lastBlob = blob; }, 'image/jpeg', 0.92);
 
   shotN++;
-  shotEl.textContent=shotN+'枚';
-  const ti=document.getElementById('timg');
-  document.getElementById('tico').style.display='none';
-  ti.src=lastUrl; ti.style.display='block';
+  shotEl.textContent = shotN + '枚';
+  var ti = document.getElementById('timg');
+  document.getElementById('tico').style.display = 'none';
+  ti.src = lastUrl;
+  ti.style.display = 'block';
 
   openM();
 }
 
-async function savePhoto(){
-  if(!lastUrl) return;
-  const hint=document.getElementById('save-hint');
+function savePhoto() {
+  if (!lastUrl) return;
+  var hint = document.getElementById('save-hint');
+  if (navigator.share && lastBlob) {
+    var file = new File([lastBlob], 'photo_' + Date.now() + '.jpg', { type: 'image/jpeg' });
+    navigator.share({ files: [file], title: '写真' }).then(function() {
+      hint.textContent = '✅ 共有メニューから「写真に保存」を選んでください';
+    }).catch(function(e) {
+      if (e.name !== 'AbortError') fallbackSave();
+    });
+  } else {
+    fallbackSave();
+  }
+}
 
-  // 方法1: Web Share API（iOS Safari で最も確実）
-  if(navigator.share && lastBlob){
-    try{
-      const file=new File([lastBlob],'photo_'+Date.now()+'.jpg',{type:'image/jpeg'});
-      await navigator.share({files:[file],title:'写真'});
-      hint.textContent='✅ 共有メニューから「写真に保存」を選んでください';
-      return;
-    }catch(e){
-      if(e.name==='AbortError') return; // ユーザーがキャンセル
+function fallbackSave() {
+  var hint = document.getElementById('save-hint');
+  var a = document.createElement('a');
+  a.href = lastUrl;
+  a.download = 'photo_' + Date.now() + '.jpg';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  hint.textContent = 'ダウンロードフォルダを確認してください';
+}
+
+function openM() {
+  if (!lastUrl) return;
+  document.getElementById('mimg').src = lastUrl;
+  document.getElementById('save-hint').textContent = '';
+  document.getElementById('modal').className = 'show';
+}
+function closeM() {
+  document.getElementById('modal').className = '';
+}
+
+function flipCam() {
+  if (torchOn) {
+    var track = stream && stream.getVideoTracks()[0];
+    if (track) {
+      try { track.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
     }
+    torchOn = false;
+    document.getElementById('torchbtn').textContent = '🔦 OFF';
+    document.getElementById('torchbtn').className = 'p';
   }
-
-  // 方法2: <a download>（Android/PCで動作）
-  try{
-    const a=document.createElement('a');
-    a.href=lastUrl;
-    a.download='photo_'+Date.now()+'.jpg';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    hint.textContent='✅ ダウンロードフォルダを確認してください';
-    return;
-  }catch(e){}
-
-  // 方法3: 新しいタブで開く（最終手段）
-  const w=window.open();
-  if(w){
-    w.document.write('<html><head><meta name="viewport" content="width=device-width"><title>写真</title></head><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="'+lastUrl+'" style="max-width:100%;"></body></html>');
-    w.document.close();
-    hint.textContent='長押し →「写真に追加」で保存してください';
+  facing = facing === 'environment' ? 'user' : 'environment';
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
   }
+  navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+    stream = s;
+    video.srcObject = stream;
+    setTimeout(checkTorch, 500);
+  }).catch(function() {});
 }
 
-function openM(){
-  if(!lastUrl) return;
-  document.getElementById('mimg').src=lastUrl;
-  document.getElementById('save-hint').textContent='';
-  document.getElementById('modal').classList.add('show');
-}
-function closeM(){
-  document.getElementById('modal').classList.remove('show');
-}
-
-async function flipCam(){
-  if(torchOn){
-    const track=stream&&stream.getVideoTracks()[0];
-    if(track) try{await track.applyConstraints({advanced:[{torch:false}]});}catch(e){}
-    torchOn=false;
-    document.getElementById('torchbtn').textContent='🔦 OFF';
-    document.getElementById('torchbtn').classList.remove('torch-on');
-  }
-  facing=facing==='environment'?'user':'environment';
-  await restartCam();
-}
-
-window.addEventListener('resize',()=>setTimeout(updateVF,100));
-window.addEventListener('orientationchange',()=>setTimeout(updateVF,400));
-setTimeout(updateVF,100);
+window.addEventListener('resize', function() { setTimeout(updateVF, 100); });
+window.addEventListener('orientationchange', function() { setTimeout(updateVF, 400); });
+setTimeout(updateVF, 100);
 </script>
 </body>
 </html>
+
