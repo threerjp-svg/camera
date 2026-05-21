@@ -92,6 +92,8 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:-ap
       <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
       <div style="width:1px;height:14px;background:rgba(255,255,255,0.12);margin:0 4px;"></div>
       <button class="p" id="torchbtn" onclick="toggleTorch()">🔦 OFF</button>
+      <div style="width:1px;height:14px;background:rgba(255,255,255,0.12);margin:0 4px;"></div>
+      <button class="p" id="lensbtn" onclick="switchLens()" style="display:none;">📷 広角</button>
     </div>
     <div class="row" id="tsrow">
       <button class="p on" onclick="setTSP('left')">左下</button>
@@ -139,6 +141,8 @@ var lastUrl = null;
 var lastBlob = null;
 var torchOn = false;
 var torchSupported = false;
+var camDevices = [];
+var camIdx = 0;
 
 var video = document.getElementById('video');
 var canvas = document.getElementById('canvas');
@@ -169,6 +173,17 @@ function updateVF() {
 function getCamConstraints() {
   var w = curMP === 12 ? 4032 : 1920;
   var h = curMP === 12 ? 3024 : 1080;
+  // 背面カメラでdeviceIdが取得済みの場合はそちらを優先
+  if (facing === 'environment' && camDevices.length > 0 && camDevices[camIdx]) {
+    return {
+      video: {
+        deviceId: { exact: camDevices[camIdx].deviceId },
+        width: { ideal: w },
+        height: { ideal: h }
+      },
+      audio: false
+    };
+  }
   return {
     video: {
       facingMode: { ideal: facing },
@@ -187,9 +202,66 @@ function startCam() {
     shotEl.style.display = 'block';
     setTimeout(updateVF, 300);
     setTimeout(checkTorch, 500);
+    // カメラ一覧を取得（権限付与後でないと取得できない）
+    setTimeout(enumCameras, 800);
   }).catch(function(e) {
     document.getElementById('permtxt').textContent =
       'カメラが起動できませんでした。Safari設定→カメラを「許可」にしてください。';
+  });
+}
+
+function enumCameras() {
+  navigator.mediaDevices.enumerateDevices().then(function(devices) {
+    camDevices = [];
+    for (var i = 0; i < devices.length; i++) {
+      var d = devices[i];
+      if (d.kind === 'videoinput') {
+        // iOSでは背面カメラが複数ある場合、labelに'back'が含まれる
+        var label = d.label.toLowerCase();
+        if (label.indexOf('front') === -1 && label.indexOf('前面') === -1) {
+          camDevices.push(d);
+        }
+      }
+    }
+    updateLensBtn();
+  });
+}
+
+function updateLensBtn() {
+  var btn = document.getElementById('lensbtn');
+  if (camDevices.length > 1) {
+    btn.style.display = '';
+    var label = camDevices[camIdx] ? camDevices[camIdx].label : '';
+    if (label.toLowerCase().indexOf('telephoto') !== -1 || label.indexOf('望遠') !== -1) {
+      btn.textContent = '🔭 望遠';
+      btn.className = 'p on';
+    } else if (label.toLowerCase().indexOf('ultra') !== -1 || label.indexOf('超広角') !== -1) {
+      btn.textContent = '🌐 超広角';
+      btn.className = 'p';
+    } else {
+      btn.textContent = '📷 広角';
+      btn.className = 'p';
+    }
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function switchLens() {
+  if (facing !== 'environment' || camDevices.length < 2) return;
+  camIdx = (camIdx + 1) % camDevices.length;
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+  }
+  navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+    stream = s;
+    video.srcObject = stream;
+    updateLensBtn();
+    setTimeout(checkTorch, 500);
+  }).catch(function() {
+    camIdx = 0;
+    updateLensBtn();
   });
 }
 
@@ -396,6 +468,7 @@ function flipCam() {
     document.getElementById('torchbtn').className = 'p';
   }
   facing = facing === 'environment' ? 'user' : 'environment';
+  camIdx = 0; // レンズをリセット
   if (stream) {
     stream.getTracks().forEach(function(t) { t.stop(); });
     stream = null;
@@ -404,6 +477,8 @@ function flipCam() {
     stream = s;
     video.srcObject = stream;
     setTimeout(checkTorch, 500);
+    if (facing === 'environment') setTimeout(enumCameras, 800);
+    else document.getElementById('lensbtn').style.display = 'none';
   }).catch(function() {});
 }
 
@@ -413,4 +488,3 @@ setTimeout(updateVF, 100);
 </script>
 </body>
 </html>
-
