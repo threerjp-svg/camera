@@ -38,7 +38,7 @@
   #video {
     width: 100%; height: 100%;
     object-fit: cover; display: block;
-    transform: scaleX(-1);
+    /* 反転なし - 正像で表示 */
   }
   #canvas { display: none; }
   .grid-line { position: absolute; background: rgba(255,255,255,0.15); }
@@ -56,6 +56,7 @@
     position: absolute; inset: 0;
     background: #fff; opacity: 0;
     pointer-events: none; z-index: 10;
+    transition: opacity 0.1s;
   }
   #shot-count {
     position: absolute; top: 12px; right: 14px;
@@ -135,14 +136,35 @@
     font-size: 16px; font-weight: 600; cursor: pointer;
     margin-top: 8px; -webkit-appearance: none;
   }
-  #save-toast {
-    position: absolute; bottom: 20px; left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.75); color: #fff;
-    font-size: 13px; padding: 8px 18px;
-    border-radius: 20px; z-index: 20;
-    opacity: 0; transition: opacity 0.3s;
-    white-space: nowrap; pointer-events: none;
+
+  /* 保存モーダル */
+  #save-modal {
+    display: none;
+    position: fixed; inset: 0; z-index: 100;
+    background: rgba(0,0,0,0.85);
+    flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; padding: 24px;
+  }
+  #save-modal.show { display: flex; }
+  #save-modal img {
+    max-width: 100%; max-height: 55vh;
+    border-radius: 12px; object-fit: contain;
+  }
+  #save-modal p {
+    color: #fff; font-size: 14px; text-align: center;
+    line-height: 1.6;
+  }
+  #save-modal .hint {
+    color: rgba(255,255,255,0.5); font-size: 12px;
+    text-align: center;
+  }
+  #close-modal-btn {
+    background: rgba(255,255,255,0.15); color: #fff;
+    border: none; border-radius: 24px;
+    padding: 12px 32px; font-size: 15px;
+    cursor: pointer; -webkit-appearance: none;
+    margin-top: 4px;
   }
 </style>
 </head>
@@ -164,7 +186,6 @@
     </div>
     <div id="flash-msg"></div>
     <div id="shot-count">0枚</div>
-    <div id="save-toast">写真を保存しました</div>
     <div id="perm-msg">
       <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.3">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -198,7 +219,7 @@
       <button class="pill-btn active" id="ts-toggle" onclick="toggleTS()">ON</button>
     </div>
     <div id="shutter-row">
-      <div id="thumb-preview" onclick="downloadLast()">
+      <div id="thumb-preview" onclick="openModal()">
         <svg id="thumb-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5">
           <rect x="3" y="3" width="18" height="18" rx="3"/>
           <path d="M3 9l4-4 4 4 4-6 4 6"/>
@@ -215,6 +236,15 @@
     </div>
   </div>
 </div>
+
+<!-- 保存モーダル -->
+<div id="save-modal">
+  <img id="modal-img" src="" alt="撮影した写真"/>
+  <p>写真を長押し →「写真に追加」で保存</p>
+  <p class="hint">または共有ボタンから「画像を保存」</p>
+  <button id="close-modal-btn" onclick="closeModal()">閉じる</button>
+</div>
+
 <canvas id="canvas"></canvas>
 
 <script>
@@ -234,19 +264,22 @@
   const flash = document.getElementById('flash-msg');
   const shotCountEl = document.getElementById('shot-count');
   const mpLabel = document.getElementById('mp-label');
-  const toast = document.getElementById('save-toast');
 
   const ratios = { '1:1': 1, '3:4': 3/4, '2:3': 2/3 };
   const mpSizes = {
-    2: { w: 1600, h: 1200 },
-    3: { w: 2048, h: 1536 },
-    5: { w: 2592, h: 1944 }
+    2: { w: 1200, h: 1600 },
+    3: { w: 1536, h: 2048 },
+    5: { w: 1944, h: 2592 }
   };
 
   async function startCamera() {
     try {
       stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: facingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        video: {
+          facingMode: { ideal: facingMode },
+          width: { ideal: 1080 },
+          height: { ideal: 1920 }
+        },
         audio: false
       });
       video.srcObject = stream;
@@ -255,7 +288,7 @@
       setTimeout(updateMasks, 200);
     } catch(e) {
       document.getElementById('perm-text').textContent =
-        'カメラへのアクセスが拒否されました。\nSafariの設定 → プライバシー → カメラを確認してください。';
+        'カメラへのアクセスが拒否されました。\nSafari設定 → カメラを「許可」にしてください。';
     }
   }
 
@@ -312,47 +345,79 @@
       ' ' + pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds());
   }
 
-  function showToast(msg) {
-    toast.textContent = msg;
-    toast.style.opacity = '1';
-    setTimeout(() => { toast.style.opacity = '0'; }, 2000);
-  }
-
   function shoot() {
     if (!stream) { startCamera(); return; }
+
     flash.style.opacity = '0.9';
     setTimeout(() => { flash.style.opacity = '0'; }, 100);
 
+    const vw = video.videoWidth, vh = video.videoHeight;
+    if (!vw || !vh) return;
+
+    // 縦向き出力サイズ（幅 < 高さ）
     const size = mpSizes[currentMP];
     const ratio = ratios[currentRatio];
-    let outW = size.w, outH = size.h;
-    const tRatio = 1 / ratio;
-    if (outW / outH > tRatio) outW = Math.round(outH * tRatio);
-    else outH = Math.round(outW / tRatio);
+    // 縦向き: 幅がratioの分子、高さが分母に対応
+    // 3:4 → width:height = 3:4 つまり portrait
+    let outW = size.w;  // 短辺
+    let outH = size.h;  // 長辺
+    // ratioは w/h なので portrait では outW/outH = ratio
+    // すでに mpSizes を縦向きで定義済み
 
-    canvas.width = outW; canvas.height = outH;
+    // アスペクト比補正
+    const tRatio = ratio; // w/h
+    if (outW / outH !== tRatio) {
+      if (outW / outH > tRatio) outW = Math.round(outH * tRatio);
+      else outH = Math.round(outW / tRatio);
+    }
+
+    canvas.width = outW;
+    canvas.height = outH;
     const ctx = canvas.getContext('2d');
-    const vw = video.videoWidth, vh = video.videoHeight;
-    const vR = vw / vh, cR = outW / outH;
-    let sx, sy, sw, sh;
-    if (vR > cR) { sh = vh; sw = Math.round(vh * cR); sy = 0; sx = Math.round((vw-sw)/2); }
-    else { sw = vw; sh = Math.round(vw/cR); sx = 0; sy = Math.round((vh-sh)/2); }
 
-    ctx.save(); ctx.translate(outW, 0); ctx.scale(-1, 1);
-    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH);
-    ctx.restore();
+    // ビデオが横向きで来る場合は回転して縦にする
+    const videoIsLandscape = vw > vh;
+    const outputIsPortrait = outH > outW;
 
+    if (videoIsLandscape && outputIsPortrait) {
+      // ビデオを90度回転してcanvasに描画
+      const tmpCanvas = document.createElement('canvas');
+      tmpCanvas.width = vh; tmpCanvas.height = vw;
+      const tmpCtx = tmpCanvas.getContext('2d');
+      tmpCtx.translate(vh/2, vw/2);
+      tmpCtx.rotate(Math.PI/2);
+      tmpCtx.drawImage(video, -vw/2, -vh/2, vw, vh);
+
+      // 回転後のサイズ
+      const rw = tmpCanvas.width, rh = tmpCanvas.height;
+      const cR = outW / outH;
+      const vR = rw / rh;
+      let sx, sy, sw, sh;
+      if (vR > cR) { sh = rh; sw = Math.round(rh * cR); sy = 0; sx = Math.round((rw-sw)/2); }
+      else { sw = rw; sh = Math.round(rw/cR); sx = 0; sy = Math.round((rh-sh)/2); }
+      ctx.drawImage(tmpCanvas, sx, sy, sw, sh, 0, 0, outW, outH);
+    } else {
+      // 通常描画（反転なし）
+      const cR = outW / outH;
+      const vR = vw / vh;
+      let sx, sy, sw, sh;
+      if (vR > cR) { sh = vh; sw = Math.round(vh * cR); sy = 0; sx = Math.round((vw-sw)/2); }
+      else { sw = vw; sh = Math.round(vw/cR); sx = 0; sy = Math.round((vh-sh)/2); }
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH);
+    }
+
+    // タイムスタンプ
     if (tsEnabled) {
       const ts = getTimestamp();
-      const fs = Math.round(outW * 0.024);
+      const fs = Math.round(outW * 0.036);
       ctx.font = 'bold ' + fs + 'px monospace';
-      const pad = Math.round(outW * 0.024);
+      const pad = Math.round(outW * 0.035);
       const tw = ctx.measureText(ts).width;
       let tx;
       if (tsPos === 'left') tx = pad;
       else if (tsPos === 'center') tx = (outW - tw) / 2;
       else tx = outW - tw - pad;
-      ctx.shadowColor = 'rgba(0,0,0,0.85)';
+      ctx.shadowColor = 'rgba(0,0,0,0.9)';
       ctx.shadowBlur = fs * 0.5;
       ctx.fillStyle = '#FFD700';
       ctx.fillText(ts, tx, outH - pad);
@@ -365,26 +430,21 @@
 
     const img = document.getElementById('thumb-img');
     document.getElementById('thumb-icon').style.display = 'none';
-    img.src = lastDataUrl; img.style.display = 'block';
+    img.src = lastDataUrl;
+    img.style.display = 'block';
 
-    // iOSではダウンロードの代わりに新しいタブで画像を開く
-    const win = window.open();
-    if (win) {
-      win.document.write('<html><head><meta name="viewport" content="width=device-width"><title>写真</title></head><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="' + lastDataUrl + '" style="max-width:100%;"></body></html>');
-      win.document.close();
-      showToast('長押し → 写真を保存 で保存できます');
-    } else {
-      showToast('サムネイルをタップして保存');
-    }
+    // 撮影後すぐに保存モーダルを表示
+    openModal();
   }
 
-  function downloadLast() {
+  function openModal() {
     if (!lastDataUrl) return;
-    const win = window.open();
-    if (win) {
-      win.document.write('<html><head><meta name="viewport" content="width=device-width"><title>写真</title></head><body style="margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;"><img src="' + lastDataUrl + '" style="max-width:100%;"></body></html>');
-      win.document.close();
-    }
+    document.getElementById('modal-img').src = lastDataUrl;
+    document.getElementById('save-modal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('save-modal').classList.remove('show');
   }
 
   async function flipCamera() {
@@ -401,7 +461,7 @@
   }
 
   window.addEventListener('resize', updateMasks);
-  window.addEventListener('orientationchange', () => setTimeout(updateMasks, 300));
+  window.addEventListener('orientationchange', () => setTimeout(updateMasks, 400));
 </script>
 </body>
 </html>
