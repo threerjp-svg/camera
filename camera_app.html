@@ -6,229 +6,217 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="カメラ">
-<title>カメラアプリ</title>
+<title>カメラ</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    width: 100%; height: 100%;
-    background: #000;
-    font-family: -apple-system, 'SF Pro Display', sans-serif;
-    overflow: hidden;
-    -webkit-tap-highlight-color: transparent;
-    -webkit-touch-callout: none;
-    user-select: none;
-  }
-  #app {
-    width: 100%; height: 100%;
-    display: flex; flex-direction: column;
-    background: #0a0a0a;
-  }
-  #status-bar {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: env(safe-area-inset-top, 12px) 20px 6px;
-    color: rgba(255,255,255,0.5); font-size: 11px;
-    background: #0a0a0a; flex-shrink: 0;
-  }
-  #viewfinder-wrap {
-    position: relative; flex: 1;
-    background: #111; overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-    min-height: 0;
-  }
-  #video {
-    width: 100%; height: 100%;
-    object-fit: cover; display: block;
-    /* 反転なし - 正像で表示 */
-  }
-  #canvas { display: none; }
-  .grid-line { position: absolute; background: rgba(255,255,255,0.15); }
-  .grid-v { width: 0.5px; top: 0; bottom: 0; }
-  .grid-h { height: 0.5px; left: 0; right: 0; }
-  #aspect-mask-top, #aspect-mask-bottom {
-    position: absolute; left: 0; right: 0;
-    background: rgba(0,0,0,0.65);
-    pointer-events: none; z-index: 2;
-    transition: height 0.3s ease;
-  }
-  #aspect-mask-top { top: 0; }
-  #aspect-mask-bottom { bottom: 0; }
-  #flash-msg {
-    position: absolute; inset: 0;
-    background: #fff; opacity: 0;
-    pointer-events: none; z-index: 10;
-    transition: opacity 0.1s;
-  }
-  #shot-count {
-    position: absolute; top: 12px; right: 14px;
-    background: rgba(0,0,0,0.5); color: #fff;
-    font-size: 11px; padding: 3px 8px;
-    border-radius: 10px; z-index: 3; display: none;
-  }
-  #controls-bottom {
-    background: #0a0a0a;
-    padding: 10px 20px calc(env(safe-area-inset-bottom, 12px) + 10px);
-    display: flex; flex-direction: column; gap: 8px;
-    flex-shrink: 0;
-  }
-  .ctrl-label {
-    font-size: 10px; color: rgba(255,255,255,0.3);
-    text-align: center; letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-  .ctrl-row {
-    display: flex; justify-content: center;
-    gap: 6px; flex-wrap: wrap;
-  }
-  .pill-btn {
-    background: rgba(255,255,255,0.1);
-    border: 0.5px solid rgba(255,255,255,0.2);
-    color: rgba(255,255,255,0.65);
-    border-radius: 20px; padding: 5px 13px;
-    font-size: 11px; font-weight: 500;
-    cursor: pointer; transition: all 0.18s;
-    white-space: nowrap; -webkit-appearance: none;
-  }
-  .pill-btn.active { background: #fff; color: #000; border-color: #fff; }
-  .divider { height: 0.5px; background: rgba(255,255,255,0.07); margin: 1px 0; }
-  #shutter-row {
-    display: flex; align-items: center;
-    justify-content: space-between; padding: 6px 8px 0;
-  }
-  #thumb-preview {
-    width: 54px; height: 54px;
-    border-radius: 10px;
-    background: rgba(255,255,255,0.1);
-    overflow: hidden;
-    border: 0.5px solid rgba(255,255,255,0.2);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  #thumb-img { width: 100%; height: 100%; object-fit: cover; display: none; }
-  #shutter-btn {
-    width: 74px; height: 74px; border-radius: 50%;
-    background: transparent; border: 3px solid #fff;
-    cursor: pointer; display: flex; align-items: center;
-    justify-content: center; position: relative;
-    -webkit-appearance: none; transition: transform 0.1s;
-  }
-  #shutter-btn:active { transform: scale(0.93); }
-  #shutter-btn::after {
-    content: ''; width: 60px; height: 60px;
-    border-radius: 50%; background: #fff;
-  }
-  #flip-btn {
-    width: 54px; height: 54px; border-radius: 50%;
-    background: rgba(255,255,255,0.15); border: none;
-    cursor: pointer; display: flex; align-items: center;
-    justify-content: center; -webkit-appearance: none;
-  }
-  #perm-msg {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 14px; color: rgba(255,255,255,0.6);
-    font-size: 15px; text-align: center; padding: 32px;
-    z-index: 20; background: #111;
-  }
-  #start-btn {
-    background: #fff; color: #000; border: none;
-    border-radius: 28px; padding: 14px 32px;
-    font-size: 16px; font-weight: 600; cursor: pointer;
-    margin-top: 8px; -webkit-appearance: none;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  width:100%;height:100%;background:#000;overflow:hidden;
+  font-family:-apple-system,'SF Pro Display',sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;user-select:none;
+}
+#app{width:100%;height:100%;display:flex;flex-direction:column;background:#000;}
 
-  /* 保存モーダル */
-  #save-modal {
-    display: none;
-    position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,0.85);
-    flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 16px; padding: 24px;
-  }
-  #save-modal.show { display: flex; }
-  #save-modal img {
-    max-width: 100%; max-height: 55vh;
-    border-radius: 12px; object-fit: contain;
-  }
-  #save-modal p {
-    color: #fff; font-size: 14px; text-align: center;
-    line-height: 1.6;
-  }
-  #save-modal .hint {
-    color: rgba(255,255,255,0.5); font-size: 12px;
-    text-align: center;
-  }
-  #close-modal-btn {
-    background: rgba(255,255,255,0.15); color: #fff;
-    border: none; border-radius: 24px;
-    padding: 12px 32px; font-size: 15px;
-    cursor: pointer; -webkit-appearance: none;
-    margin-top: 4px;
-  }
+/* ビューファインダー：画面の大部分を占める */
+#vf{
+  position:relative;flex:1;min-height:0;
+  background:#111;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+#video{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+}
+#canvas{display:none;}
+
+/* グリッド線 */
+.gl{position:absolute;background:rgba(255,255,255,0.18);}
+.gv{width:0.5px;top:0;bottom:0;}
+.gh{height:0.5px;left:0;right:0;}
+
+/* アスペクト比マスク */
+#mt,#mb{
+  position:absolute;left:0;right:0;
+  background:rgba(0,0,0,0.6);
+  pointer-events:none;z-index:2;
+  transition:height 0.25s ease;
+}
+#mt{top:0;}#mb{bottom:0;}
+
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
+
+#shot-count{
+  position:absolute;top:10px;right:12px;
+  background:rgba(0,0,0,0.45);color:#fff;
+  font-size:11px;padding:2px 8px;border-radius:10px;
+  z-index:3;display:none;
+}
+
+/* 上部ステータス */
+#topbar{
+  position:absolute;top:0;left:0;right:0;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:8px 14px;z-index:5;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.4),transparent);
+}
+#topbar span{color:#fff;font-size:11px;font-weight:500;opacity:0.85;}
+
+/* 権限メッセージ */
+#perm{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;color:rgba(255,255,255,0.65);font-size:14px;text-align:center;
+  padding:32px;z-index:20;background:#111;
+}
+#start-btn{
+  background:#fff;color:#000;border:none;
+  border-radius:28px;padding:13px 30px;
+  font-size:15px;font-weight:600;cursor:pointer;
+  margin-top:6px;-webkit-appearance:none;
+}
+
+/* ボトムコントロール：コンパクト */
+#ctrl{
+  background:#0a0a0a;
+  padding:6px 16px calc(env(safe-area-inset-bottom,8px) + 6px);
+  display:flex;flex-direction:column;gap:5px;
+  flex-shrink:0;
+}
+
+.row{display:flex;justify-content:center;gap:5px;align-items:center;}
+
+/* ピル型ボタン */
+.p{
+  background:rgba(255,255,255,0.1);
+  border:0.5px solid rgba(255,255,255,0.18);
+  color:rgba(255,255,255,0.6);
+  border-radius:16px;padding:4px 11px;
+  font-size:10px;font-weight:500;
+  cursor:pointer;-webkit-appearance:none;
+  white-space:nowrap;transition:all 0.15s;
+}
+.p.on{background:#fff;color:#000;border-color:#fff;}
+
+.sep{height:0.5px;background:rgba(255,255,255,0.07);margin:1px 0;}
+
+/* シャッター行 */
+#srow{
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:4px 6px 2px;
+}
+#thumb{
+  width:48px;height:48px;border-radius:9px;
+  background:rgba(255,255,255,0.1);overflow:hidden;
+  border:0.5px solid rgba(255,255,255,0.2);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+#timg{width:100%;height:100%;object-fit:cover;display:none;}
+#shutter{
+  width:68px;height:68px;border-radius:50%;
+  background:transparent;border:3px solid #fff;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  -webkit-appearance:none;transition:transform 0.1s;position:relative;
+}
+#shutter:active{transform:scale(0.92);}
+#shutter::after{
+  content:'';width:56px;height:56px;
+  border-radius:50%;background:#fff;
+}
+#flip{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(255,255,255,0.15);border:none;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  -webkit-appearance:none;
+}
+
+/* 保存モーダル */
+#modal{
+  display:none;position:fixed;inset:0;z-index:100;
+  background:rgba(0,0,0,0.92);
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;padding:20px;
+}
+#modal.show{display:flex;}
+#mimg{
+  max-width:100%;max-height:60vh;
+  border-radius:10px;object-fit:contain;
+}
+#modal .msg{color:#fff;font-size:14px;text-align:center;line-height:1.7;}
+#modal .sub{color:rgba(255,255,255,0.45);font-size:11px;text-align:center;}
+#mclose{
+  background:rgba(255,255,255,0.15);color:#fff;
+  border:none;border-radius:22px;padding:11px 28px;
+  font-size:14px;cursor:pointer;-webkit-appearance:none;
+}
 </style>
 </head>
 <body>
 <div id="app">
-  <div id="status-bar">
-    <span id="ratio-label">3:4</span>
-    <span id="mp-label">約300万画素</span>
-  </div>
-  <div id="viewfinder-wrap">
+  <!-- ビューファインダー -->
+  <div id="vf">
     <video id="video" autoplay playsinline muted></video>
-    <div id="aspect-mask-top"></div>
-    <div id="aspect-mask-bottom"></div>
+    <div id="mt"></div><div id="mb"></div>
     <div style="position:absolute;inset:0;pointer-events:none;">
-      <div class="grid-line grid-v" style="left:33.3%"></div>
-      <div class="grid-line grid-v" style="left:66.6%"></div>
-      <div class="grid-line grid-h" style="top:33.3%"></div>
-      <div class="grid-line grid-h" style="top:66.6%"></div>
+      <div class="gl gv" style="left:33.3%"></div>
+      <div class="gl gv" style="left:66.6%"></div>
+      <div class="gl gh" style="top:33.3%"></div>
+      <div class="gl gh" style="top:66.6%"></div>
     </div>
-    <div id="flash-msg"></div>
+    <div id="flash"></div>
     <div id="shot-count">0枚</div>
-    <div id="perm-msg">
-      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.3">
+    <div id="topbar">
+      <span id="rlabel">3:4</span>
+      <span id="mplabel">約300万画素</span>
+    </div>
+    <div id="perm">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.3">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
         <circle cx="12" cy="13" r="4"/>
       </svg>
-      <span id="perm-text">カメラへのアクセスを許可してください</span>
-      <button id="start-btn" onclick="startCamera()">カメラを起動</button>
+      <span id="permtxt">カメラへのアクセスを許可してください</span>
+      <button id="start-btn" onclick="startCam()">カメラを起動</button>
     </div>
   </div>
 
-  <div id="controls-bottom">
-    <p class="ctrl-label">アスペクト比</p>
-    <div class="ctrl-row" id="ratio-row">
-      <button class="pill-btn" onclick="setRatio('1:1')">1:1</button>
-      <button class="pill-btn active" onclick="setRatio('3:4')">3:4</button>
-      <button class="pill-btn" onclick="setRatio('2:3')">2:3</button>
+  <!-- コントロール -->
+  <div id="ctrl">
+    <!-- アスペクト比 -->
+    <div class="row" id="rrow">
+      <button class="p" onclick="setR('1:1')">1:1</button>
+      <button class="p on" onclick="setR('3:4')">3:4</button>
+      <button class="p" onclick="setR('2:3')">2:3</button>
     </div>
-    <div class="divider"></div>
-    <p class="ctrl-label">画素数</p>
-    <div class="ctrl-row" id="mp-row">
-      <button class="pill-btn" onclick="setMP(2)">約200万</button>
-      <button class="pill-btn active" onclick="setMP(3)">約300万</button>
-      <button class="pill-btn" onclick="setMP(5)">約500万</button>
+    <div class="sep"></div>
+    <!-- 画素数 + タイムスタンプON/OFF を1行に -->
+    <div class="row">
+      <div class="row" id="mprow" style="gap:5px;">
+        <button class="p" onclick="setMP(2)">200万</button>
+        <button class="p on" onclick="setMP(3)">300万</button>
+        <button class="p" onclick="setMP(5)">500万</button>
+      </div>
+      <div style="width:1px;height:16px;background:rgba(255,255,255,0.12);margin:0 4px;"></div>
+      <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
     </div>
-    <div class="divider"></div>
-    <p class="ctrl-label">タイムスタンプ</p>
-    <div class="ctrl-row" id="ts-row">
-      <button class="pill-btn active" onclick="setTSPos('left')">左下</button>
-      <button class="pill-btn" onclick="setTSPos('center')">中央下</button>
-      <button class="pill-btn" onclick="setTSPos('right')">右下</button>
-      <button class="pill-btn active" id="ts-toggle" onclick="toggleTS()">ON</button>
+    <!-- タイムスタンプ位置 -->
+    <div class="row" id="tsrow">
+      <button class="p on" onclick="setTSP('left')">左下</button>
+      <button class="p" onclick="setTSP('center')">中央下</button>
+      <button class="p" onclick="setTSP('right')">右下</button>
     </div>
-    <div id="shutter-row">
-      <div id="thumb-preview" onclick="openModal()">
-        <svg id="thumb-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5">
+    <div class="sep"></div>
+    <!-- シャッター行 -->
+    <div id="srow">
+      <div id="thumb" onclick="openM()">
+        <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
           <rect x="3" y="3" width="18" height="18" rx="3"/>
           <path d="M3 9l4-4 4 4 4-6 4 6"/>
         </svg>
-        <img id="thumb-img" alt="最後の写真"/>
+        <img id="timg" alt=""/>
       </div>
-      <button id="shutter-btn" onclick="shoot()"></button>
-      <button id="flip-btn" onclick="flipCamera()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+      <button id="shutter" onclick="shoot()"></button>
+      <button id="flip" onclick="flipCam()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
           <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
           <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
         </svg>
@@ -238,230 +226,202 @@
 </div>
 
 <!-- 保存モーダル -->
-<div id="save-modal">
-  <img id="modal-img" src="" alt="撮影した写真"/>
-  <p>写真を長押し →「写真に追加」で保存</p>
-  <p class="hint">または共有ボタンから「画像を保存」</p>
-  <button id="close-modal-btn" onclick="closeModal()">閉じる</button>
+<div id="modal">
+  <img id="mimg" src="" alt="撮影写真"/>
+  <p class="msg">📷 写真を長押し<br>→「写真に追加」でカメラロールに保存</p>
+  <p class="sub">保存後に「閉じる」を押してください</p>
+  <button id="mclose" onclick="closeM()">閉じる</button>
 </div>
 
 <canvas id="canvas"></canvas>
-
 <script>
-  let stream = null;
-  let facingMode = 'environment';
-  let currentRatio = '3:4';
-  let currentMP = 3;
-  let tsPos = 'left';
-  let tsEnabled = true;
-  let shotCount = 0;
-  let lastDataUrl = null;
+let stream=null, facing='environment';
+let curR='3:4', curMP=3, tsPos='left', tsOn=true;
+let shotN=0, lastUrl=null;
 
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('canvas');
-  const maskTop = document.getElementById('aspect-mask-top');
-  const maskBottom = document.getElementById('aspect-mask-bottom');
-  const flash = document.getElementById('flash-msg');
-  const shotCountEl = document.getElementById('shot-count');
-  const mpLabel = document.getElementById('mp-label');
+const video=document.getElementById('video');
+const canvas=document.getElementById('canvas');
+const flash=document.getElementById('flash');
+const shotEl=document.getElementById('shot-count');
 
-  const ratios = { '1:1': 1, '3:4': 3/4, '2:3': 2/3 };
-  const mpSizes = {
-    2: { w: 1200, h: 1600 },
-    3: { w: 1536, h: 2048 },
-    5: { w: 1944, h: 2592 }
-  };
+const ratios={'1:1':1,'3:4':3/4,'2:3':2/3};
+// 縦向き出力サイズ (width < height)
+const mpSz={
+  2:{w:1200,h:1600},
+  3:{w:1536,h:2048},
+  5:{w:1944,h:2592}
+};
 
-  async function startCamera() {
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: facingMode },
-          width: { ideal: 1080 },
-          height: { ideal: 1920 }
-        },
-        audio: false
+async function startCam(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:facing},width:{ideal:1080},height:{ideal:1920}},
+      audio:false
+    });
+    video.srcObject=stream;
+    document.getElementById('perm').style.display='none';
+    shotEl.style.display='block';
+    setTimeout(updateMasks,300);
+  }catch(e){
+    document.getElementById('permtxt').textContent='カメラへのアクセスが拒否されました。\nSafari設定→カメラを「許可」に変更してください。';
+  }
+}
+
+function updateMasks(){
+  const vf=document.getElementById('vf');
+  const H=vf.offsetHeight, W=vf.offsetWidth;
+  const r=ratios[curR];
+  const tH=W/r;
+  if(tH>=H){
+    document.getElementById('mt').style.height='0px';
+    document.getElementById('mb').style.height='0px';
+  }else{
+    const hide=(H-tH)/2;
+    document.getElementById('mt').style.height=hide+'px';
+    document.getElementById('mb').style.height=hide+'px';
+  }
+}
+
+function setR(r){
+  curR=r;
+  document.getElementById('rlabel').textContent=r;
+  document.querySelectorAll('#rrow .p').forEach(b=>b.classList.toggle('on',b.textContent===r));
+  updateMasks();
+}
+
+function setMP(mp){
+  curMP=mp;
+  const lbl={2:'約200万画素',3:'約300万画素',5:'約500万画素'};
+  const btn={2:'200万',3:'300万',5:'500万'};
+  document.getElementById('mplabel').textContent=lbl[mp];
+  document.querySelectorAll('#mprow .p').forEach(b=>b.classList.toggle('on',b.textContent===btn[mp]));
+}
+
+function setTSP(p){
+  tsPos=p;
+  const m={left:'左下',center:'中央下',right:'右下'};
+  document.querySelectorAll('#tsrow .p').forEach(b=>b.classList.toggle('on',b.textContent===m[p]));
+}
+
+function toggleTS(){
+  tsOn=!tsOn;
+  const btn=document.getElementById('tstog');
+  btn.textContent=tsOn?'TS ON':'TS OFF';
+  btn.classList.toggle('on',tsOn);
+}
+
+function getTS(){
+  const n=new Date(), p=v=>String(v).padStart(2,'0');
+  return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+}
+
+function shoot(){
+  if(!stream){startCam();return;}
+  const vw=video.videoWidth, vh=video.videoHeight;
+  if(!vw||!vh)return;
+
+  flash.style.opacity='0.85';
+  setTimeout(()=>{flash.style.opacity='0';},100);
+
+  const sz=mpSz[curMP];
+  const ratio=ratios[curR];
+  // 縦向き出力: outW < outH, outW/outH = ratio
+  let outW=sz.w, outH=sz.h;
+  if(Math.abs(outW/outH - ratio)>0.01){
+    if(outW/outH > ratio) outW=Math.round(outH*ratio);
+    else outH=Math.round(outW/ratio);
+  }
+
+  canvas.width=outW; canvas.height=outH;
+  const ctx=canvas.getContext('2d');
+
+  // iOSカメラは常に横長(landscape)のフレームを渡す
+  // 縦持ち撮影でも vw>vh になるため、90度回転して縦にする
+  if(vw>vh){
+    // 横フレームを縦に回転
+    // 前面カメラの場合は反転補正
+    ctx.save();
+    ctx.translate(outW/2, outH/2);
+    if(facing==='user'){
+      // 前面カメラ: 時計回り90度回転 + 左右反転
+      ctx.rotate(Math.PI/2);
+      ctx.scale(-1,1);
+    }else{
+      // 背面カメラ: 反時計回り90度
+      ctx.rotate(-Math.PI/2);
+    }
+    // 回転後に描画（vh×vwのキャンバスに収める）
+    const scale=Math.max(outW/vh, outH/vw);
+    const dw=vw*scale, dh=vh*scale;
+    ctx.drawImage(video,-dw/2,-dh/2,dw,dh);
+    ctx.restore();
+  }else{
+    // 既に縦フレーム
+    if(facing==='user'){
+      ctx.save();
+      ctx.translate(outW,0);
+      ctx.scale(-1,1);
+    }
+    const cR=outW/outH, vR=vw/vh;
+    let sx,sy,sw,sh;
+    if(vR>cR){sh=vh;sw=Math.round(vh*cR);sy=0;sx=Math.round((vw-sw)/2);}
+    else{sw=vw;sh=Math.round(vw/cR);sx=0;sy=Math.round((vh-sh)/2);}
+    ctx.drawImage(video,sx,sy,sw,sh,0,0,outW,outH);
+    if(facing==='user') ctx.restore();
+  }
+
+  // タイムスタンプ
+  if(tsOn){
+    const ts=getTS();
+    const fs=Math.round(outW*0.036);
+    ctx.font='bold '+fs+'px monospace';
+    const pad=Math.round(outW*0.035);
+    const tw=ctx.measureText(ts).width;
+    let tx;
+    if(tsPos==='left') tx=pad;
+    else if(tsPos==='center') tx=(outW-tw)/2;
+    else tx=outW-tw-pad;
+    ctx.shadowColor='rgba(0,0,0,0.9)';
+    ctx.shadowBlur=fs*0.5;
+    ctx.fillStyle='#FFD700';
+    ctx.fillText(ts,tx,outH-pad);
+    ctx.shadowBlur=0;
+  }
+
+  lastUrl=canvas.toDataURL('image/jpeg',0.93);
+  shotN++;
+  shotEl.textContent=shotN+'枚';
+  const ti=document.getElementById('timg');
+  document.getElementById('tico').style.display='none';
+  ti.src=lastUrl; ti.style.display='block';
+
+  openM();
+}
+
+function openM(){
+  if(!lastUrl)return;
+  document.getElementById('mimg').src=lastUrl;
+  document.getElementById('modal').classList.add('show');
+}
+function closeM(){
+  document.getElementById('modal').classList.remove('show');
+}
+
+async function flipCam(){
+  facing=facing==='environment'?'user':'environment';
+  if(stream){
+    stream.getTracks().forEach(t=>t.stop());
+    try{
+      stream=await navigator.mediaDevices.getUserMedia({
+        video:{facingMode:{ideal:facing}},audio:false
       });
-      video.srcObject = stream;
-      document.getElementById('perm-msg').style.display = 'none';
-      shotCountEl.style.display = 'block';
-      setTimeout(updateMasks, 200);
-    } catch(e) {
-      document.getElementById('perm-text').textContent =
-        'カメラへのアクセスが拒否されました。\nSafari設定 → カメラを「許可」にしてください。';
-    }
+      video.srcObject=stream;
+    }catch(e){}
   }
+}
 
-  function updateMasks() {
-    const vf = document.getElementById('viewfinder-wrap');
-    const vfH = vf.offsetHeight, vfW = vf.offsetWidth;
-    const ratio = ratios[currentRatio];
-    const targetH = vfW / ratio;
-    if (targetH >= vfH) {
-      maskTop.style.height = '0px';
-      maskBottom.style.height = '0px';
-    } else {
-      const hide = (vfH - targetH) / 2;
-      maskTop.style.height = hide + 'px';
-      maskBottom.style.height = hide + 'px';
-    }
-  }
-
-  function setRatio(r) {
-    currentRatio = r;
-    document.getElementById('ratio-label').textContent = r;
-    document.querySelectorAll('#ratio-row .pill-btn').forEach(b =>
-      b.classList.toggle('active', b.textContent === r));
-    updateMasks();
-  }
-
-  function setMP(mp) {
-    currentMP = mp;
-    const labels = { 2: '約200万画素', 3: '約300万画素', 5: '約500万画素' };
-    const btns  = { 2: '約200万', 3: '約300万', 5: '約500万' };
-    mpLabel.textContent = labels[mp];
-    document.querySelectorAll('#mp-row .pill-btn').forEach(b =>
-      b.classList.toggle('active', b.textContent === btns[mp]));
-  }
-
-  function setTSPos(pos) {
-    tsPos = pos;
-    const map = { left: '左下', center: '中央下', right: '右下' };
-    document.querySelectorAll('#ts-row .pill-btn:not(#ts-toggle)').forEach(b =>
-      b.classList.toggle('active', b.textContent === map[pos]));
-  }
-
-  function toggleTS() {
-    tsEnabled = !tsEnabled;
-    const btn = document.getElementById('ts-toggle');
-    btn.textContent = tsEnabled ? 'ON' : 'OFF';
-    btn.classList.toggle('active', tsEnabled);
-  }
-
-  function getTimestamp() {
-    const n = new Date();
-    const pad = v => String(v).padStart(2,'0');
-    return n.getFullYear() + '-' + pad(n.getMonth()+1) + '-' + pad(n.getDate()) +
-      ' ' + pad(n.getHours()) + ':' + pad(n.getMinutes()) + ':' + pad(n.getSeconds());
-  }
-
-  function shoot() {
-    if (!stream) { startCamera(); return; }
-
-    flash.style.opacity = '0.9';
-    setTimeout(() => { flash.style.opacity = '0'; }, 100);
-
-    const vw = video.videoWidth, vh = video.videoHeight;
-    if (!vw || !vh) return;
-
-    // 縦向き出力サイズ（幅 < 高さ）
-    const size = mpSizes[currentMP];
-    const ratio = ratios[currentRatio];
-    // 縦向き: 幅がratioの分子、高さが分母に対応
-    // 3:4 → width:height = 3:4 つまり portrait
-    let outW = size.w;  // 短辺
-    let outH = size.h;  // 長辺
-    // ratioは w/h なので portrait では outW/outH = ratio
-    // すでに mpSizes を縦向きで定義済み
-
-    // アスペクト比補正
-    const tRatio = ratio; // w/h
-    if (outW / outH !== tRatio) {
-      if (outW / outH > tRatio) outW = Math.round(outH * tRatio);
-      else outH = Math.round(outW / tRatio);
-    }
-
-    canvas.width = outW;
-    canvas.height = outH;
-    const ctx = canvas.getContext('2d');
-
-    // ビデオが横向きで来る場合は回転して縦にする
-    const videoIsLandscape = vw > vh;
-    const outputIsPortrait = outH > outW;
-
-    if (videoIsLandscape && outputIsPortrait) {
-      // ビデオを90度回転してcanvasに描画
-      const tmpCanvas = document.createElement('canvas');
-      tmpCanvas.width = vh; tmpCanvas.height = vw;
-      const tmpCtx = tmpCanvas.getContext('2d');
-      tmpCtx.translate(vh/2, vw/2);
-      tmpCtx.rotate(Math.PI/2);
-      tmpCtx.drawImage(video, -vw/2, -vh/2, vw, vh);
-
-      // 回転後のサイズ
-      const rw = tmpCanvas.width, rh = tmpCanvas.height;
-      const cR = outW / outH;
-      const vR = rw / rh;
-      let sx, sy, sw, sh;
-      if (vR > cR) { sh = rh; sw = Math.round(rh * cR); sy = 0; sx = Math.round((rw-sw)/2); }
-      else { sw = rw; sh = Math.round(rw/cR); sx = 0; sy = Math.round((rh-sh)/2); }
-      ctx.drawImage(tmpCanvas, sx, sy, sw, sh, 0, 0, outW, outH);
-    } else {
-      // 通常描画（反転なし）
-      const cR = outW / outH;
-      const vR = vw / vh;
-      let sx, sy, sw, sh;
-      if (vR > cR) { sh = vh; sw = Math.round(vh * cR); sy = 0; sx = Math.round((vw-sw)/2); }
-      else { sw = vw; sh = Math.round(vw/cR); sx = 0; sy = Math.round((vh-sh)/2); }
-      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH);
-    }
-
-    // タイムスタンプ
-    if (tsEnabled) {
-      const ts = getTimestamp();
-      const fs = Math.round(outW * 0.036);
-      ctx.font = 'bold ' + fs + 'px monospace';
-      const pad = Math.round(outW * 0.035);
-      const tw = ctx.measureText(ts).width;
-      let tx;
-      if (tsPos === 'left') tx = pad;
-      else if (tsPos === 'center') tx = (outW - tw) / 2;
-      else tx = outW - tw - pad;
-      ctx.shadowColor = 'rgba(0,0,0,0.9)';
-      ctx.shadowBlur = fs * 0.5;
-      ctx.fillStyle = '#FFD700';
-      ctx.fillText(ts, tx, outH - pad);
-      ctx.shadowBlur = 0;
-    }
-
-    lastDataUrl = canvas.toDataURL('image/jpeg', 0.93);
-    shotCount++;
-    shotCountEl.textContent = shotCount + '枚';
-
-    const img = document.getElementById('thumb-img');
-    document.getElementById('thumb-icon').style.display = 'none';
-    img.src = lastDataUrl;
-    img.style.display = 'block';
-
-    // 撮影後すぐに保存モーダルを表示
-    openModal();
-  }
-
-  function openModal() {
-    if (!lastDataUrl) return;
-    document.getElementById('modal-img').src = lastDataUrl;
-    document.getElementById('save-modal').classList.add('show');
-  }
-
-  function closeModal() {
-    document.getElementById('save-modal').classList.remove('show');
-  }
-
-  async function flipCamera() {
-    facingMode = facingMode === 'environment' ? 'user' : 'environment';
-    if (stream) {
-      stream.getTracks().forEach(t => t.stop());
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: facingMode } }, audio: false
-        });
-        video.srcObject = stream;
-      } catch(e) {}
-    }
-  }
-
-  window.addEventListener('resize', updateMasks);
-  window.addEventListener('orientationchange', () => setTimeout(updateMasks, 400));
+window.addEventListener('resize',updateMasks);
+window.addEventListener('orientationchange',()=>setTimeout(updateMasks,400));
 </script>
 </body>
 </html>
