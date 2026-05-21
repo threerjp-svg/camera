@@ -15,58 +15,69 @@ html,body{
   -webkit-tap-highlight-color:transparent;
   -webkit-touch-callout:none;user-select:none;
 }
-#app{width:100%;height:100%;display:flex;flex-direction:column;background:#000;}
-
-/* ビューファインダー：画面の大部分を占める */
-#vf{
-  position:relative;flex:1;min-height:0;
-  background:#111;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
+#app{
+  width:100%;height:100%;
+  display:flex;flex-direction:column;
+  background:#000;
+  align-items:center;
 }
+
+/* ビューファインダー領域：幅全体、高さはflexで残り全部 */
+#vf-area{
+  width:100%;flex:1;min-height:0;
+  position:relative;
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+
+/* 実際のビューファインダーボックス：アスペクト比に合わせてサイズ決定 */
+#vf-box{
+  position:relative;
+  background:#111;
+  overflow:hidden;
+  /* サイズはJSで設定 */
+}
+
 #video{
   width:100%;height:100%;
   object-fit:cover;display:block;
 }
 #canvas{display:none;}
 
-/* グリッド線 */
+/* グリッド */
 .gl{position:absolute;background:rgba(255,255,255,0.18);}
 .gv{width:0.5px;top:0;bottom:0;}
 .gh{height:0.5px;left:0;right:0;}
 
-/* アスペクト比マスク */
-#mt,#mb{
-  position:absolute;left:0;right:0;
-  background:rgba(0,0,0,0.6);
-  pointer-events:none;z-index:2;
-  transition:height 0.25s ease;
-}
-#mt{top:0;}#mb{bottom:0;}
-
-#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
-
-#shot-count{
-  position:absolute;top:10px;right:12px;
-  background:rgba(0,0,0,0.45);color:#fff;
-  font-size:11px;padding:2px 8px;border-radius:10px;
-  z-index:3;display:none;
+#flash{
+  position:absolute;inset:0;background:#fff;
+  opacity:0;pointer-events:none;z-index:10;
 }
 
-/* 上部ステータス */
+/* 上部オーバーレイ情報 */
 #topbar{
   position:absolute;top:0;left:0;right:0;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:8px 14px;z-index:5;
-  background:linear-gradient(to bottom,rgba(0,0,0,0.4),transparent);
+  display:flex;justify-content:space-between;
+  padding:8px 12px;z-index:5;
+  background:linear-gradient(to bottom,rgba(0,0,0,0.45),transparent);
 }
-#topbar span{color:#fff;font-size:11px;font-weight:500;opacity:0.85;}
+#topbar span{color:#fff;font-size:11px;font-weight:500;opacity:0.9;}
+#shot-count{
+  position:absolute;bottom:8px;left:12px;
+  background:rgba(0,0,0,0.45);color:#fff;
+  font-size:11px;padding:2px 8px;border-radius:10px;
+  z-index:5;display:none;
+}
 
-/* 権限メッセージ */
+/* 権限 */
 #perm{
   position:absolute;inset:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;color:rgba(255,255,255,0.65);font-size:14px;text-align:center;
-  padding:32px;z-index:20;background:#111;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  gap:14px;color:rgba(255,255,255,0.65);
+  font-size:14px;text-align:center;padding:32px;
+  z-index:20;background:#111;
 }
 #start-btn{
   background:#fff;color:#000;border:none;
@@ -75,17 +86,14 @@ html,body{
   margin-top:6px;-webkit-appearance:none;
 }
 
-/* ボトムコントロール：コンパクト */
+/* コントロールパネル */
 #ctrl{
-  background:#0a0a0a;
-  padding:6px 16px calc(env(safe-area-inset-bottom,8px) + 6px);
+  width:100%;background:#0a0a0a;
+  padding:7px 16px calc(env(safe-area-inset-bottom,8px) + 6px);
   display:flex;flex-direction:column;gap:5px;
   flex-shrink:0;
 }
-
-.row{display:flex;justify-content:center;gap:5px;align-items:center;}
-
-/* ピル型ボタン */
+.row{display:flex;justify-content:center;gap:5px;align-items:center;flex-wrap:wrap;}
 .p{
   background:rgba(255,255,255,0.1);
   border:0.5px solid rgba(255,255,255,0.18);
@@ -96,27 +104,28 @@ html,body{
   white-space:nowrap;transition:all 0.15s;
 }
 .p.on{background:#fff;color:#000;border-color:#fff;}
-
-.sep{height:0.5px;background:rgba(255,255,255,0.07);margin:1px 0;}
+.sep{height:0.5px;background:rgba(255,255,255,0.07);}
 
 /* シャッター行 */
 #srow{
   display:flex;align-items:center;
   justify-content:space-between;
-  padding:4px 6px 2px;
+  padding:4px 6px 0;
 }
 #thumb{
   width:48px;height:48px;border-radius:9px;
   background:rgba(255,255,255,0.1);overflow:hidden;
   border:0.5px solid rgba(255,255,255,0.2);
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;display:flex;
+  align-items:center;justify-content:center;
 }
 #timg{width:100%;height:100%;object-fit:cover;display:none;}
 #shutter{
   width:68px;height:68px;border-radius:50%;
   background:transparent;border:3px solid #fff;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  -webkit-appearance:none;transition:transform 0.1s;position:relative;
+  cursor:pointer;display:flex;align-items:center;
+  justify-content:center;-webkit-appearance:none;
+  transition:transform 0.1s;position:relative;
 }
 #shutter:active{transform:scale(0.92);}
 #shutter::after{
@@ -126,86 +135,88 @@ html,body{
 #flip{
   width:48px;height:48px;border-radius:50%;
   background:rgba(255,255,255,0.15);border:none;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  -webkit-appearance:none;
+  cursor:pointer;display:flex;align-items:center;
+  justify-content:center;-webkit-appearance:none;
 }
 
 /* 保存モーダル */
 #modal{
   display:none;position:fixed;inset:0;z-index:100;
-  background:rgba(0,0,0,0.92);
-  flex-direction:column;align-items:center;justify-content:center;
-  gap:14px;padding:20px;
+  background:rgba(0,0,0,0.93);
+  flex-direction:column;align-items:center;
+  justify-content:center;gap:14px;padding:20px;
 }
 #modal.show{display:flex;}
 #mimg{
-  max-width:100%;max-height:60vh;
+  max-width:100%;max-height:62vh;
   border-radius:10px;object-fit:contain;
 }
-#modal .msg{color:#fff;font-size:14px;text-align:center;line-height:1.7;}
-#modal .sub{color:rgba(255,255,255,0.45);font-size:11px;text-align:center;}
+#modal .msg{
+  color:#fff;font-size:15px;
+  text-align:center;line-height:1.8;
+}
+#modal .sub{
+  color:rgba(255,255,255,0.45);
+  font-size:11px;text-align:center;line-height:1.6;
+}
 #mclose{
   background:rgba(255,255,255,0.15);color:#fff;
   border:none;border-radius:22px;padding:11px 28px;
   font-size:14px;cursor:pointer;-webkit-appearance:none;
+  margin-top:4px;
 }
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- ビューファインダー -->
-  <div id="vf">
-    <video id="video" autoplay playsinline muted></video>
-    <div id="mt"></div><div id="mb"></div>
-    <div style="position:absolute;inset:0;pointer-events:none;">
-      <div class="gl gv" style="left:33.3%"></div>
-      <div class="gl gv" style="left:66.6%"></div>
-      <div class="gl gh" style="top:33.3%"></div>
-      <div class="gl gh" style="top:66.6%"></div>
-    </div>
-    <div id="flash"></div>
-    <div id="shot-count">0枚</div>
-    <div id="topbar">
-      <span id="rlabel">3:4</span>
-      <span id="mplabel">約300万画素</span>
-    </div>
-    <div id="perm">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.3">
-        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-        <circle cx="12" cy="13" r="4"/>
-      </svg>
-      <span id="permtxt">カメラへのアクセスを許可してください</span>
-      <button id="start-btn" onclick="startCam()">カメラを起動</button>
+  <div id="vf-area">
+    <div id="vf-box">
+      <video id="video" autoplay playsinline muted></video>
+      <div style="position:absolute;inset:0;pointer-events:none;">
+        <div class="gl gv" style="left:33.3%"></div>
+        <div class="gl gv" style="left:66.6%"></div>
+        <div class="gl gh" style="top:33.3%"></div>
+        <div class="gl gh" style="top:66.6%"></div>
+      </div>
+      <div id="flash"></div>
+      <div id="topbar">
+        <span id="rlabel">3:4</span>
+        <span id="mplabel">約300万画素</span>
+      </div>
+      <div id="shot-count">0枚</div>
+      <div id="perm">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.3">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span id="permtxt">カメラへのアクセスを許可してください</span>
+        <button id="start-btn" onclick="startCam()">カメラを起動</button>
+      </div>
     </div>
   </div>
 
-  <!-- コントロール -->
   <div id="ctrl">
-    <!-- アスペクト比 -->
     <div class="row" id="rrow">
       <button class="p" onclick="setR('1:1')">1:1</button>
       <button class="p on" onclick="setR('3:4')">3:4</button>
       <button class="p" onclick="setR('2:3')">2:3</button>
     </div>
     <div class="sep"></div>
-    <!-- 画素数 + タイムスタンプON/OFF を1行に -->
     <div class="row">
-      <div class="row" id="mprow" style="gap:5px;">
+      <div class="row" id="mprow">
         <button class="p" onclick="setMP(2)">200万</button>
         <button class="p on" onclick="setMP(3)">300万</button>
         <button class="p" onclick="setMP(5)">500万</button>
       </div>
-      <div style="width:1px;height:16px;background:rgba(255,255,255,0.12);margin:0 4px;"></div>
+      <div style="width:1px;height:14px;background:rgba(255,255,255,0.12);margin:0 4px;"></div>
       <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
     </div>
-    <!-- タイムスタンプ位置 -->
     <div class="row" id="tsrow">
       <button class="p on" onclick="setTSP('left')">左下</button>
       <button class="p" onclick="setTSP('center')">中央下</button>
       <button class="p" onclick="setTSP('right')">右下</button>
     </div>
     <div class="sep"></div>
-    <!-- シャッター行 -->
     <div id="srow">
       <div id="thumb" onclick="openM()">
         <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
@@ -228,8 +239,8 @@ html,body{
 <!-- 保存モーダル -->
 <div id="modal">
   <img id="mimg" src="" alt="撮影写真"/>
-  <p class="msg">📷 写真を長押し<br>→「写真に追加」でカメラロールに保存</p>
-  <p class="sub">保存後に「閉じる」を押してください</p>
+  <p class="msg">写真を長押し<br>→「写真に追加」でカメラロールへ保存</p>
+  <p class="sub">※ iOSの仕様上、長押し保存が唯一の方法です<br>保存後に「閉じる」を押してください</p>
   <button id="mclose" onclick="closeM()">閉じる</button>
 </div>
 
@@ -244,49 +255,61 @@ const canvas=document.getElementById('canvas');
 const flash=document.getElementById('flash');
 const shotEl=document.getElementById('shot-count');
 
+// アスペクト比：幅/高さ（縦向き）
 const ratios={'1:1':1,'3:4':3/4,'2:3':2/3};
-// 縦向き出力サイズ (width < height)
+
+// 出力画素数（縦向き: w<h）
 const mpSz={
   2:{w:1200,h:1600},
   3:{w:1536,h:2048},
   5:{w:1944,h:2592}
 };
 
+// ビューファインダーのサイズをアスペクト比通りに設定
+function updateVF(){
+  const area=document.getElementById('vf-area');
+  const box=document.getElementById('vf-box');
+  const aW=area.offsetWidth;
+  const aH=area.offsetHeight;
+  const r=ratios[curR]; // w/h
+  // 縦長なのでaH基準で幅を決める
+  let bW=Math.floor(aH*r);
+  let bH=aH;
+  if(bW>aW){
+    // 幅が画面より大きくなる場合は幅基準
+    bW=aW;
+    bH=Math.floor(aW/r);
+  }
+  box.style.width=bW+'px';
+  box.style.height=bH+'px';
+}
+
 async function startCam(){
   try{
     stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:facing},width:{ideal:1080},height:{ideal:1920}},
+      video:{
+        facingMode:{ideal:facing},
+        width:{ideal:1920},
+        height:{ideal:1080}
+      },
       audio:false
     });
     video.srcObject=stream;
     document.getElementById('perm').style.display='none';
     shotEl.style.display='block';
-    setTimeout(updateMasks,300);
+    setTimeout(updateVF,300);
   }catch(e){
-    document.getElementById('permtxt').textContent='カメラへのアクセスが拒否されました。\nSafari設定→カメラを「許可」に変更してください。';
-  }
-}
-
-function updateMasks(){
-  const vf=document.getElementById('vf');
-  const H=vf.offsetHeight, W=vf.offsetWidth;
-  const r=ratios[curR];
-  const tH=W/r;
-  if(tH>=H){
-    document.getElementById('mt').style.height='0px';
-    document.getElementById('mb').style.height='0px';
-  }else{
-    const hide=(H-tH)/2;
-    document.getElementById('mt').style.height=hide+'px';
-    document.getElementById('mb').style.height=hide+'px';
+    document.getElementById('permtxt').textContent=
+      'カメラが起動できませんでした。\nSafari設定→カメラを「許可」に変更してください。';
   }
 }
 
 function setR(r){
   curR=r;
   document.getElementById('rlabel').textContent=r;
-  document.querySelectorAll('#rrow .p').forEach(b=>b.classList.toggle('on',b.textContent===r));
-  updateMasks();
+  document.querySelectorAll('#rrow .p').forEach(b=>
+    b.classList.toggle('on',b.textContent===r));
+  updateVF();
 }
 
 function setMP(mp){
@@ -294,13 +317,15 @@ function setMP(mp){
   const lbl={2:'約200万画素',3:'約300万画素',5:'約500万画素'};
   const btn={2:'200万',3:'300万',5:'500万'};
   document.getElementById('mplabel').textContent=lbl[mp];
-  document.querySelectorAll('#mprow .p').forEach(b=>b.classList.toggle('on',b.textContent===btn[mp]));
+  document.querySelectorAll('#mprow .p').forEach(b=>
+    b.classList.toggle('on',b.textContent===btn[mp]));
 }
 
 function setTSP(p){
   tsPos=p;
   const m={left:'左下',center:'中央下',right:'右下'};
-  document.querySelectorAll('#tsrow .p').forEach(b=>b.classList.toggle('on',b.textContent===m[p]));
+  document.querySelectorAll('#tsrow .p').forEach(b=>
+    b.classList.toggle('on',b.textContent===m[p]));
 }
 
 function toggleTS(){
@@ -312,7 +337,8 @@ function toggleTS(){
 
 function getTS(){
   const n=new Date(), p=v=>String(v).padStart(2,'0');
-  return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+  return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+
+    ' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
 }
 
 function shoot(){
@@ -323,52 +349,57 @@ function shoot(){
   flash.style.opacity='0.85';
   setTimeout(()=>{flash.style.opacity='0';},100);
 
+  // 出力サイズ（縦向き）
   const sz=mpSz[curMP];
-  const ratio=ratios[curR];
-  // 縦向き出力: outW < outH, outW/outH = ratio
+  const ratio=ratios[curR]; // w/h
   let outW=sz.w, outH=sz.h;
-  if(Math.abs(outW/outH - ratio)>0.01){
-    if(outW/outH > ratio) outW=Math.round(outH*ratio);
+  // アスペクト比補正
+  if(Math.abs(outW/outH-ratio)>0.005){
+    if(outW/outH>ratio) outW=Math.round(outH*ratio);
     else outH=Math.round(outW/ratio);
   }
 
-  canvas.width=outW; canvas.height=outH;
+  canvas.width=outW;
+  canvas.height=outH;
   const ctx=canvas.getContext('2d');
 
-  // iOSカメラは常に横長(landscape)のフレームを渡す
-  // 縦持ち撮影でも vw>vh になるため、90度回転して縦にする
-  if(vw>vh){
-    // 横フレームを縦に回転
-    // 前面カメラの場合は反転補正
-    ctx.save();
+  // iOSはカメラフレームを常に横長で渡す（vw>vh）
+  // → 90度回転して縦向きに変換する
+  const isLandscapeFrame=(vw>vh);
+
+  ctx.save();
+  if(isLandscapeFrame){
+    // キャンバス中心に移動
     ctx.translate(outW/2, outH/2);
     if(facing==='user'){
-      // 前面カメラ: 時計回り90度回転 + 左右反転
-      ctx.rotate(Math.PI/2);
+      // 前面カメラ: 反時計回り90度 + 左右反転なし（鏡像補正済み）
+      ctx.rotate(-Math.PI/2);
       ctx.scale(-1,1);
     }else{
       // 背面カメラ: 反時計回り90度
       ctx.rotate(-Math.PI/2);
     }
-    // 回転後に描画（vh×vwのキャンバスに収める）
-    const scale=Math.max(outW/vh, outH/vw);
-    const dw=vw*scale, dh=vh*scale;
-    ctx.drawImage(video,-dw/2,-dh/2,dw,dh);
-    ctx.restore();
+    // 回転後: vwが縦方向、vhが横方向
+    // outWに対応するのがvh、outHに対応するのがvw
+    const scaleX=outH/vw;
+    const scaleY=outW/vh;
+    const scale=Math.max(scaleX,scaleY);
+    ctx.drawImage(video,
+      -vw/2,-vh/2,vw,vh
+    );
+    // ↑シンプルに中央描画、scaleで合わせる
   }else{
-    // 既に縦フレーム
-    if(facing==='user'){
-      ctx.save();
-      ctx.translate(outW,0);
-      ctx.scale(-1,1);
-    }
+    // 縦フレームの場合はそのまま
     const cR=outW/outH, vR=vw/vh;
     let sx,sy,sw,sh;
     if(vR>cR){sh=vh;sw=Math.round(vh*cR);sy=0;sx=Math.round((vw-sw)/2);}
     else{sw=vw;sh=Math.round(vw/cR);sx=0;sy=Math.round((vh-sh)/2);}
+    if(facing==='user'){
+      ctx.translate(outW,0);ctx.scale(-1,1);
+    }
     ctx.drawImage(video,sx,sy,sw,sh,0,0,outW,outH);
-    if(facing==='user') ctx.restore();
   }
+  ctx.restore();
 
   // タイムスタンプ
   if(tsOn){
@@ -413,15 +444,18 @@ async function flipCam(){
     stream.getTracks().forEach(t=>t.stop());
     try{
       stream=await navigator.mediaDevices.getUserMedia({
-        video:{facingMode:{ideal:facing}},audio:false
+        video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},
+        audio:false
       });
       video.srcObject=stream;
     }catch(e){}
   }
 }
 
-window.addEventListener('resize',updateMasks);
-window.addEventListener('orientationchange',()=>setTimeout(updateMasks,400));
+window.addEventListener('resize',()=>setTimeout(updateVF,100));
+window.addEventListener('orientationchange',()=>setTimeout(updateVF,400));
+setTimeout(updateVF,100);
 </script>
 </body>
 </html>
+
