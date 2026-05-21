@@ -226,13 +226,13 @@ function updateVF(){
 
 async function startCam(){
   try{
-    const res=curMP===12
-      ? {width:{ideal:4032},height:{ideal:3024}}
-      : {width:{ideal:1920},height:{ideal:1080}};
-    stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:facing},...res},
-      audio:false
-    });
+    var constraints;
+    if(curMP===12){
+      constraints={video:{facingMode:{ideal:facing},width:{ideal:4032},height:{ideal:3024}},audio:false};
+    }else{
+      constraints={video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},audio:false};
+    }
+    stream=await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject=stream;
     document.getElementById('perm').style.display='none';
     shotEl.style.display='block';
@@ -288,19 +288,20 @@ function setMP(mp){
   const btn={2:'200万',3:'300万',5:'500万',12:'1200万'};
   document.getElementById('mplabel').textContent=lbl[mp];
   document.querySelectorAll('#mprow .p').forEach(b=>b.classList.toggle('on',b.textContent===btn[mp]));
-  // 1200万選択時はカメラを再起動して高解像度ストリームを取得
-  if(stream) restartCam();
+  // ストリーム起動済みの場合のみ再起動
+  if(stream && stream.active) restartCam();
 }
 
 async function restartCam(){
   if(stream) stream.getTracks().forEach(t=>t.stop());
-  const res=curMP===12
-    ? {width:{ideal:4032},height:{ideal:3024}}
-    : {width:{ideal:1920},height:{ideal:1080}};
+  var constraints;
+  if(curMP===12){
+    constraints={video:{facingMode:{ideal:facing},width:{ideal:4032},height:{ideal:3024}},audio:false};
+  }else{
+    constraints={video:{facingMode:{ideal:facing},width:{ideal:1920},height:{ideal:1080}},audio:false};
+  }
   try{
-    stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:facing},...res},audio:false
-    });
+    stream=await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject=stream;
     setTimeout(checkTorchSupport,500);
   }catch(e){}
@@ -459,3 +460,4 @@ setTimeout(updateVF,100);
 </script>
 </body>
 </html>
+
