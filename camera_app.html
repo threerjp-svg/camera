@@ -14,6 +14,10 @@ html,body{width:100%;height:100%;background:#000;overflow:hidden;font-family:-ap
 #vf-area{width:100%;flex:1;min-height:0;position:relative;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
 #vf-box{position:relative;background:#111;overflow:hidden;}
 #video{width:100%;height:100%;object-fit:cover;display:block;}
+/* iOSが表示する赤いカメラボタンを非表示 */
+#video::-webkit-media-controls { display:none !important; }
+#video::-webkit-media-controls-enclosure { display:none !important; }
+#video::-webkit-media-controls-panel { display:none !important; }
 #canvas{display:none;}
 .gl{position:absolute;background:rgba(255,255,255,0.18);}
 .gv{width:0.5px;top:0;bottom:0;}
@@ -187,7 +191,7 @@ function startCam() {
     shotEl.style.display = 'block';
     setTimeout(updateVF, 300);
     setTimeout(checkTorch, 500);
-  }).catch(function(e) {
+  }).catch(function() {
     document.getElementById('permtxt').textContent =
       'カメラが起動できませんでした。Safari設定→カメラを「許可」にしてください。';
   });
@@ -239,7 +243,6 @@ function setMP(mp) {
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = btns[i].textContent === btn[mp] ? 'p on' : 'p';
   }
-  // カメラ起動済みなら再起動
   if (stream && stream.active) {
     stream.getTracks().forEach(function(t) { t.stop(); });
     stream = null;
@@ -306,7 +309,6 @@ function shoot() {
     } else {
       ctx.rotate(-Math.PI/2);
     }
-    var scale = Math.max(outH/vw, outW/vh);
     ctx.drawImage(video, -vw/2, -vh/2, vw, vh);
   } else {
     var cR = outW/outH;
@@ -365,14 +367,12 @@ function savePhoto() {
 }
 
 function fallbackSave() {
-  var hint = document.getElementById('save-hint');
   var a = document.createElement('a');
   a.href = lastUrl;
   a.download = 'photo_' + Date.now() + '.jpg';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  hint.textContent = 'ダウンロードフォルダを確認してください';
 }
 
 function openM() {
@@ -413,3 +413,4 @@ setTimeout(updateVF, 100);
 </script>
 </body>
 </html>
+
