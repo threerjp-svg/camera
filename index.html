@@ -48,12 +48,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
 #perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:rgba(255,255,255,0.65);font-size:14px;text-align:center;padding:32px;z-index:20;background:#111;}
 #start-btn{background:#fff;color:#000;border:none;border-radius:28px;padding:13px 30px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
-#ctrl{
-  width:100%;
-  background:#0a0a0a;
-  padding:4px 14px env(safe-area-inset-bottom);display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
-.row{display:flex;justify-content:center;gap:5px;align-items:center;flex-wrap:wrap;}
-.p{background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);border-radius:16px;padding:4px 11px;font-size:10px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+#ctrl{width:100%;background:#0a0a0a;padding:4px 14px env(safe-area-inset-bottom);display:flex;flex-direction:column;gap:5px;flex-shrink:0;}.row{display:flex;justify-content:center;gap:5px;align-items:center;flex-wrap:wrap;}.p{background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);border-radius:16px;padding:4px 11px;font-size:10px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
 .p.on{background:#fff;color:#000;border-color:#fff;}
 .p.ton{background:#FFD700;color:#000;border-color:#FFD700;}
 .sep{height:0.5px;background:rgba(255,255,255,0.07);}
@@ -64,6 +59,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #shutter:active{transform:scale(0.92);}
 #shutter::after{content:'';width:56px;height:56px;border-radius:50%;background:#fff;}
 #flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#zoom-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;}
 #modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;}
 #modal.show{display:flex;}
 #batch-modal.show{display:flex;}
@@ -135,6 +131,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
           <img id="timg" alt=""/>
         </div>
       </div>
+      <button id="zoom-btn" onclick="toggleZoom()">1x</button>
       <button id="shutter" onclick="shoot()"></button>
       <button id="flip" onclick="flipCam()">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
@@ -168,6 +165,7 @@ var lastUrl = null;
 var lastBlob = null;
 var torchOn = false;
 var torchSupported = false;
+var curZoom = 1;
 
 var video = document.getElementById('video');
 var canvas = document.getElementById('canvas');
@@ -487,6 +485,52 @@ function flipCam() {
     video.srcObject = stream;
     setTimeout(checkTorch, 500);
   }).catch(function() {});
+}
+
+async function toggleZoom() {
+  if (!stream) return;
+  
+  curZoom = (curZoom === 1) ? 2 : 1;
+  
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
+
+  var caps = track.getCapabilities ? track.getCapabilities() : {};
+  if (caps.zoom) {
+    try {
+      await track.applyConstraints({ advanced: [{ zoom: curZoom }] });
+      document.getElementById('zoom-btn').textContent = curZoom + 'x';
+      return;
+    } catch (e) {
+      console.log("Standard zoom failed, trying device switch...", e);
+    }
+  }
+
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+  }
+
+  var constraints = getCamConstraints();
+  if (curZoom === 2) {
+    constraints.video.width = { ideal: 4032 };
+    constraints.video.height = { ideal: 3024 };
+  }
+
+  try {
+    var s = await navigator.mediaDevices.getUserMedia(constraints);
+    stream = s;
+    video.srcObject = s;
+    await video.play().catch(function(){});
+    document.getElementById('zoom-btn').textContent = curZoom + 'x';
+    setTimeout(updateVF, 300);
+    setTimeout(checkTorch, 500);
+  } catch(e) {
+    console.log("Lens switch failed:", e);
+    curZoom = 1;
+    document.getElementById('zoom-btn').textContent = '1x';
+    startCam();
+  }
 }
 
 window.addEventListener('resize', function() { setTimeout(updateVF, 100); });
