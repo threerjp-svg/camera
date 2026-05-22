@@ -463,10 +463,10 @@ previewImage.addEventListener('touchstart', function() {
   // 念のため古いタイマーがあれば消す
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
   
-  // 2000ms = 3秒後に自動で撮影画面に戻す
+  // 2000ms = 2秒後に自動で撮影画面に戻す
   autoRedoTimer = setTimeout(function() {
     closeModal(); // 確認画面を閉じる関数
-  }, 3000); // ★保存にかかる時間（秒数）をここで調整できます
+  }, 2000); // ★保存にかかる時間（秒数）をここで調整できます
 });
 
 // 指が離れた時（ただタップしただけ、または途中でやめた時）はタイマーをキャンセル
