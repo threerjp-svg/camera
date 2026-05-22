@@ -1,304 +1,549 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>カメラアプリ UI シミュレーター</title>
-  <style>
-    /* 全体のスタイルリセット */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none; /* 文字選択を禁止して長押ししやすくする */
-      -webkit-user-select: none;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background-color: #1a1a1a;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="theme-color" content="#4169e1"> <!-- テーマカラーもロイヤルブルーに -->
 
-    /* スマホ画面風のコンテナ */
-    .phone-container {
-      width: 100%;
-      max-width: 400px;
-      height: 700px;
-      position: relative;
-      overflow: hidden;
-      border-radius: 40px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-      background-color: #000;
-    }
+<link rel="manifest" href="manifest.json">
 
-    /* ==========================================
-       1. 撮影画面 (Shooting Screen)
-       背景色をロイヤルブルー (#4169e1) に設定
-       ========================================== */
-    .screen-shooting {
-      width: 100%;
-      height: 100%;
-      background-color: #4169e1; /* ロイヤルブルー */
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 40px 20px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 10;
-      transition: transform 0.4s ease;
-    }
+<meta name="apple-mobile-web-app-title" content="カメラ">
 
-    .viewfinder {
-      width: 100%;
-      flex: 1;
-      background: linear-gradient(45deg, #3a5ccc, #537fff);
-      border-radius: 24px;
-      margin-bottom: 30px;
-      position: relative;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-    }
+<title>カメラ</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{width:100%;height:100%;background:#4169e1;} /* 背景をロイヤルブルーに */
+body{
+  width:100%;
+  height:100vh;
+  background:#4169e1; /* 背景をロイヤルブルーに */
+  overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;
+  -webkit-user-select:none; /* 長押し時の意図しない文字選択を防止 */
+}
+#app{
+  width:100%;
+  height:100dvh;
+  display:flex;
+  flex-direction:column;
+  background:#4169e1; /* 撮影画面全体をロイヤルブルーに */
+  align-items:center;
+}
+#vf-area{width:100%;flex:1;min-height:0;position:relative;background:#4169e1;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#vf-box{position:relative;background:#4169e1;overflow:hidden;}
+#video{width:100%;height:100%;object-fit:cover;display:block;}
+#video::-webkit-media-controls { display:none !important; }
+#video::-webkit-media-controls-enclosure { display:none !important; }
+#video::-webkit-media-controls-panel { display:none !important; }
+#video::-webkit-media-controls-start-playback-button { display:none !important; }
+video::-webkit-media-controls-overlay-play-button { display:none !important; }
+#canvas{display:none;}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
+#perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:rgba(255,255,255,0.9);font-size:14px;text-align:center;padding:32px;z-index:20;background:#4169e1;} /* 起動前の許可画面もロイヤルブルーに */
+#start-btn{background:#fff;color:#4169e1;border:none;border-radius:28px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;}
 
-    /* グリッド線 */
-    .viewfinder::before, .viewfinder::after {
-      content: '';
-      position: absolute;
-      background-color: rgba(255, 255, 255, 0.15);
-    }
-    .viewfinder::before {
-      top: 33.33%; bottom: 33.33%; left: 0; right: 0;
-      border-top: 1px solid rgba(255,255,255,0.15);
-      border-bottom: 1px solid rgba(255,255,255,0.15);
-    }
-    .viewfinder::after {
-      left: 33.33%; right: 33.33%; top: 0; bottom: 0;
-      border-left: 1px solid rgba(255,255,255,0.15);
-      border-right: 1px solid rgba(255,255,255,0.15);
-    }
+#ctrl{width:100%;background:rgba(0,0,0,0.15);padding:6px 14px env(safe-area-inset-bottom);display:flex;flex-direction:column;gap:6px;flex-shrink:0;border-top:0.5px solid rgba(255,255,255,0.15);}
+.row{display:flex;justify-content:center;gap:6px;align-items:center;flex-wrap:wrap;}
 
-    /* シャッターボタン */
-    .shutter-btn {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      background-color: #ffffff;
-      border: 6px solid rgba(255, 255, 255, 0.3);
-      cursor: pointer;
-      outline: none;
-      transition: transform 0.1s ease;
-    }
-    .shutter-btn:active {
-      transform: scale(0.92);
-    }
+.p{background:rgba(255,255,255,0.15);border:0.5px solid rgba(255,255,255,0.25);color:#fff;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.1s;}
+.p.on{background:#fff;color:#4169e1;border-color:#fff;}
+.p.ton{background:#FFD700;color:#000;border-color:#FFD700;}
+.sep{height:0.5px;background:rgba(255,255,255,0.15);}
 
-    /* ==========================================
-       2. プレビュー画面 (Preview Screen)
-       ========================================== */
-    .screen-preview {
-      width: 100%;
-      height: 100%;
-      background-color: #111;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      align-items: center;
-      padding: 40px 20px;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 5;
-    }
+#srow{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 2px;}
+#thumb{width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,0.15);overflow:hidden;border:1px solid rgba(255,255,255,0.25);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#timg{width:100%;height:100%;object-fit:cover;display:none;}
+#shutter{width:72px;height:72px;border-radius:50%;background:transparent;border:4px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.08s;position:relative;}
+#shutter:active{transform:scale(0.90);}
+#shutter::after{content:'';width:56px;height:56px;border-radius:50%;background:#fff;}
+#flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#zoom-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 
-    .photo-wrapper {
-      width: 100%;
-      flex: 1;
-      position: relative;
-      margin-bottom: 30px;
-      border-radius: 24px;
-      overflow: hidden;
-    }
+#modal{position:fixed;inset:0;background:#000;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px env(safe-area-inset-bottom);}
+#m-box{width:100%;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
+/* メニュー出し・長押し判定のためにタッチ動作を最適化 */
+#m-img{max-width:100%;max-height:100%;object-fit:contain;display:block;cursor:pointer;-webkit-touch-callout:none;}
+#m-ctrl{width:100%;padding:16px 24px;display:flex;justify-content:center;align-items:center;gap:16px;flex-shrink:0;}
 
-    /* 撮影された写真（長押し対象） */
-    .preview-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      cursor: pointer;
-      -webkit-touch-callout: none; /* スマホ標準のメニューポップアップを禁止 */
-    }
+/* 「Redo」ボタン：一本化しロイヤルブルー(#4169e1)に変更 */
+.m-btn{width:100%;height:50px;border-radius:25px;font-size:15px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
+#m-cancel{background:#4169e1;color:#fff;}
+#m-cancel:active{background:#2b52c1;}
 
-    /* 長押し時のプログレスアニメーション */
-    .hold-indicator {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      width: 80px;
-      height: 80px;
-      border: 4px solid rgba(255, 255, 255, 0.7);
-      border-radius: 50%;
-      pointer-events: none;
-      transition: transform 0.8s linear, opacity 0.2s;
-      opacity: 0;
-    }
-    .photo-wrapper.holding .hold-indicator {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-
-    /* Redo ボタン (ロイヤルブルー #4169e1) */
-    .redo-btn {
-      width: 100%;
-      padding: 16px;
-      background-color: #4169e1; /* ロイヤルブルー */
-      color: white;
-      border: none;
-      border-radius: 16px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .redo-btn:active {
-      background-color: #2b52c1;
-    }
-
-    /* ==========================================
-       共通：通知トースト (Toast Notification)
-       ========================================== */
-    .toast {
-      position: absolute;
-      top: 30px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-20px);
-      background-color: rgba(0, 0, 0, 0.85);
-      color: white;
-      padding: 12px 24px;
-      border-radius: 30px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
-      text-align: center;
-      white-space: nowrap;
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* 非表示状態の画面制御 */
-    .hidden {
-      transform: translateY(100%);
-    }
-  </style>
+/* トースト通知（保存完了メッセージ）のスタイル */
+#toast {
+  position: absolute;
+  top: 40px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: translateY(-100%);
+}
+#toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
 </head>
 <body>
-
-  <div class="phone-container">
-    <!-- トースト通知 -->
-    <div id="toast" class="toast">カメラロールに直接保存しました！</div>
-
-    <!-- 1. 撮影画面 -->
-    <div id="screenShooting" class="screen-shooting">
-      <div class="viewfinder"></div>
-      <button id="shutterBtn" class="shutter-btn" aria-label="シャッター"></button>
-    </div>
-
-    <!-- 2. プレビュー画面 -->
-    <div id="screenPreview" class="screen-preview">
-      <div id="photoWrapper" class="photo-wrapper">
-        <!-- ダミーの生成画像 (Unsplashから取得) -->
-        <img id="previewImage" class="preview-image" src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80" alt="撮影された写真">
-        <div class="hold-indicator"></div>
+<div id="app">
+  <div id="vf-area">
+    <div id="vf-box">
+      <video id="video" autoplay playsinline muted webkit-playsinline></video>
+      <div id="flash"></div>
+      <div id="perm">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="1.3">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+        <span id="permtxt">カメラへのアクセスを許可してください</span>
+        <button id="start-btn" onclick="startCam()">カメラを起動</button>
       </div>
-      <!-- Redoボタンのみを配置 -->
-      <button id="redoBtn" class="redo-btn">Redo</button>
     </div>
   </div>
 
-  <script>
-    // 要素の取得
-    const screenShooting = document.getElementById('screenShooting');
-    const shutterBtn = document.getElementById('shutterBtn');
-    const photoWrapper = document.getElementById('photoWrapper');
-    const previewImage = document.getElementById('previewImage');
-    const redoBtn = document.getElementById('redoBtn');
-    const toast = document.getElementById('toast');
+  <div id="ctrl">
+    <div class="row" id="rrow">
+      <button class="p" onclick="setR('1:1')">1:1</button>
+      <button class="p on" onclick="setR('3:4')">3:4</button>
+      <button class="p" onclick="setR('2:3')">2:3</button>
+      <button class="p" onclick="setR('9:16')">9:16</button>
+    </div>
+    <div class="sep"></div>
+    <div class="row" id="mprow">
+      <button class="p" onclick="setMP(2)">200万</button>
+      <button class="p on" onclick="setMP(3)">300万</button>
+      <button class="p" onclick="setMP(6)">600万</button>
+      <button class="p" onclick="setMP(12)">1200万</button>
+    </div>
+    <div class="sep"></div>
+    <div class="row" id="tsrow">
+      <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
+      <button class="p on" onclick="setTSP('left')">Left</button>
+      <button class="p" onclick="setTSP('center')">Center</button>
+      <button class="p" onclick="setTSP('right')">Right</button>
+      <button id="torchbtn" class="p" onclick="toggleTorch()">Flash</button> 
+    </div>
+    <div class="sep"></div>
+    <div id="srow">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="thumb" onclick="openLastShot()">
+          <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <path d="M3 9l4-4 4 4 4-6 4 6"/>
+          </svg>
+          <img id="timg" alt=""/>
+        </div>
+      </div>
+      <button id="zoom-btn" onclick="toggleZoom()">1x</button>
+      <button id="shutter" onclick="shoot()"></button>
+      <button id="flip" onclick="flipCam()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+          <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+          <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
 
-    let pressTimer = null;
-    const LONG_PRESS_DURATION = 800; // 長押し判定の時間 (0.8秒)
+<!-- 確認画面 -->
+<div id="modal">
+  <!-- 保存完了を知らせるトースト通知 -->
+  <div id="toast">カメラロールに直接保存しました！</div>
+  <div id="m-box">
+    <img id="m-img" alt="プレビュー"/>
+  </div>
+  <div id="m-ctrl">
+    <!-- 「とりなおす」から「Redo」に名称変更。写真に保存リンクは削除 -->
+    <button id="m-cancel" class="m-btn" onclick="closeModal()">Redo</button>
+  </div>
+</div>
 
-    // --- 画面遷移の処理 ---
-    // シャッターボタンを押したとき (撮影)
-    shutterBtn.addEventListener('click', () => {
-      screenShooting.classList.add('hidden'); // 撮影画面を引っ込める
-    });
+<canvas id="canvas"></canvas>
 
-    // Redoボタンを押したとき (やり直し)
-    redoBtn.addEventListener('click', () => {
-      screenShooting.classList.remove('hidden'); // 撮影画面を戻す
-    });
+<script>
+var stream = null;
+var facing = 'environment';
+var curR = '3:4';
+var curMP = 3;
+var tsPos = 'left';
+var tsOn = true;
+var shotN = 0;
+var lastUrl = null;
+var torchOn = false;
+var torchSupported = false;
+var curZoom = 1;
 
-    // --- 長押し（ロングプレス）で保存する仕組み ---
-    function startPress(e) {
-      // 誤動作防止（右クリックなどを除外）
-      if (e.type === 'click' && e.button !== 0) return;
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+var flash = document.getElementById('flash');
+var modal = document.getElementById('modal');
+var mImg = document.getElementById('m-img');
+var toast = document.getElementById('toast');
 
-      photoWrapper.classList.add('holding');
+// 長押し判定用タイマー
+var pressTimer = null;
+var currentFileName = '';
 
-      // 0.8秒後に保存処理を実行
-      pressTimer = setTimeout(() => {
-        saveToCameraRoll();
-        cancelPress(); // 保存されたらインジケータをリセット
-      }, LONG_PRESS_DURATION);
+var ratios = {'1:1':1, '3:4':0.75, '2:3':0.6667, '9:16':0.5625};
+var mpSz = {
+  2:{w:1200,h:1600},
+  3:{w:1536,h:2048},
+  6:{w:2160,h:2880},
+  12:{w:3024,h:4032}
+};
+
+function updateVF() {
+  var area = document.getElementById('vf-area');
+  var box = document.getElementById('vf-box');
+  if(!area || !box) return;
+  var aW = area.offsetWidth;
+  var aH = area.offsetHeight;
+  var r = ratios[curR];
+  var bW = Math.floor(aH * r);
+  var bH = aH;
+  if (bW > aW) { bW = aW; bH = Math.floor(aW / r); }
+  box.style.width = bW + 'px';
+  box.style.height = bH + 'px';
+}
+
+function getCamConstraints() {
+  var w = curMP === 12 ? 4032 : 1920;
+  var h = curMP === 12 ? 3024 : 1080;
+  return {
+    video: {
+      facingMode: { ideal: facing },
+      width: { ideal: w },
+      height: { ideal: h },
+      imageStabilizationMode: { ideal: "standard" }
+    },
+    audio: false
+  };
+}
+
+async function startCam() {
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      document.getElementById('permtxt').textContent = 'このブラウザはカメラに対応していません';
+      return;
     }
+    const s = await navigator.mediaDevices.getUserMedia(getCamConstraints());
+    stream = s;
+    video.srcObject = s;
+    await video.play().catch(function(){});
+    document.getElementById('perm').style.display = 'none';
+    setTimeout(updateVF, 300);
+    setTimeout(checkTorch, 500);
+  } catch(e) {
+    console.log(e);
+    document.getElementById('permtxt').textContent = 'カメラ起動失敗: ' + e.message;
+  }
+}
 
-    function cancelPress() {
-      // タイマーを解除してアニメーションを止める
-      clearTimeout(pressTimer);
-      photoWrapper.classList.remove('holding');
+function checkTorch() {
+  if (!stream) return;
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
+  var caps = track.getCapabilities ? track.getCapabilities() : {};
+  torchSupported = !!caps.torch;
+  
+  var btn = document.getElementById('torchbtn');
+  btn.className = torchOn ? 'p ton' : 'p';
+}
+
+function toggleTorch() {
+  if (!stream) return;
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
+  if (!torchSupported) {
+    alert('このデバイスはライト機能に対応していないか、インカメラに設定されています');
+    return;
+  }
+  torchOn = !torchOn;
+  track.applyConstraints({ advanced: [{ torch: torchOn }] }).then(function() {
+    var btn = document.getElementById('torchbtn');
+    btn.className = torchOn ? 'p ton' : 'p';
+  }).catch(function() {
+    torchOn = false;
+    alert('ライトの制御に失敗しました');
+  });
+}
+
+function setR(r) {
+  curR = r;
+  var btns = document.querySelectorAll('#rrow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === r ? 'p on' : 'p';
+  }
+  updateVF();
+}
+
+function setMP(mp) {
+  curMP = mp;
+  var btn = {2:'200万',3:'300万',6:'600万',12:'1200万'};
+  var btns = document.querySelectorAll('#mprow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === btn[mp] ? 'p on' : 'p';
+  }
+  if (stream && stream.active) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+    navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+      stream = s;
+      video.srcObject = stream;
+      setTimeout(checkTorch, 500);
+    }).catch(function() {});
+  }
+}
+
+function setTSP(p) {
+  tsPos = p;
+  var m = {left:'Left',center:'Center',right:'Right'};
+  var btns = document.querySelectorAll('#tsrow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === m[p] ? 'p on' : 'p';
+  }
+}
+
+function toggleTS() {
+  tsOn = !tsOn;
+  var btn = document.getElementById('tstog');
+  btn.textContent = tsOn ? 'TS ON' : 'TS OFF';
+  btn.className = tsOn ? 'p on' : 'p';
+}
+
+function getTS() {
+  var n = new Date();
+  var p = function(v) { return String(v).padStart(2,'0'); };
+  return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+
+    ' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
+}
+
+function shoot() {
+  if (!stream) { startCam(); return; }
+  var vw = video.videoWidth;
+  var vh = video.videoHeight;
+  if (!vw || !vh) return;
+
+  flash.style.opacity = '0.85';
+  setTimeout(function() { flash.style.opacity = '0'; }, 100);
+
+  var sz = mpSz[curMP];
+  var ratio = ratios[curR];
+  var outW = sz.w;
+  var outH = sz.h;
+  if (Math.abs(outW/outH - ratio) > 0.005) {
+    if (outW/outH > ratio) outW = Math.round(outH * ratio);
+    else outH = Math.round(outW / ratio);
+  }
+
+  canvas.width = outW;
+  canvas.height = outH;
+  var ctx = canvas.getContext('2d');
+  var isLand = (vw > vh);
+
+  ctx.save();
+  if (isLand) {
+    ctx.translate(outW/2, outH/2);
+    if (facing === 'user') {
+      ctx.rotate(-Math.PI/2);
+      ctx.scale(-1, 1);
+    } else {
+      ctx.rotate(-Math.PI/2);
     }
+    ctx.drawImage(video, -vw/2, -vh/2, vw, vh);
+  } else {
+    var cR = outW/outH;
+    var vR = vw/vh;
+    var sx, sy, sw, sh;
+    if (vR > cR) { sh=vh; sw=Math.round(vh*cR); sy=0; sx=Math.round((vw-sw)/2); }
+    else { sw=vw; sh=Math.round(vw/cR); sx=0; sy=Math.round((vh-sh)/2); }
+    if (facing === 'user') { ctx.translate(outW,0); ctx.scale(-1,1); }
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH);
+  }
+  ctx.restore();
 
-    // 擬似的な保存処理と通知トーストの表示
-    function saveToCameraRoll() {
-      // トースト通知を表示
-      toast.classList.add('show');
-      
-      // 2秒後にトーストを非表示にする
-      setTimeout(() => {
-        toast.classList.remove('show');
-      }, 2000);
+  if (tsOn) {
+    var ts = getTS();
+    var fs = Math.round(outW * 0.036);
+    ctx.font = 'bold ' + fs + 'px monospace';
+    var pad = Math.round(outW * 0.035);
+    var tw = ctx.measureText(ts).width;
+    var tx;
+    if (tsPos === 'left') tx = pad;
+    else if (tsPos === 'center') tx = (outW - tw) / 2;
+    else tx = outW - tw - pad;
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = fs * 0.5;
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText(ts, tx, outH - pad);
+    ctx.shadowBlur = 0;
+  }
 
-      // 【開発用メモ】
-      // 実際にブラウザで画像ファイルを即時ダウンロード保存させたい場合は、
-      // 以下のコードのコメントアウトを解除してください。
-      /*
-      const link = document.createElement('a');
-      link.href = previewImage.src;
-      link.download = 'captured_photo.jpg';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      */
+  lastUrl = canvas.toDataURL('image/jpeg', 0.92);
+
+  shotN++;
+  var ti = document.getElementById('timg');
+  document.getElementById('tico').style.display = 'none';
+  ti.src = lastUrl;
+  ti.style.display = 'block';
+
+  mImg.src = lastUrl;
+  
+  var d = new Date();
+  currentFileName = 'photo_' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate())+
+             '_' + String(d.getHours()).padStart(2,'0') + String(d.getMinutes()).padStart(2,'0') + String(d.getSeconds()).padStart(2,'0') + '.jpg';
+  
+  modal.style.display = 'flex';
+}
+
+function closeModal() {
+  modal.style.display = 'none';
+  mImg.src = '';
+}
+
+function openLastShot() {
+  if (lastUrl) {
+    mImg.src = lastUrl;
+    modal.style.display = 'flex';
+  }
+}
+
+function flipCam() {
+  if (torchOn) {
+    var track = stream && stream.getVideoTracks()[0];
+    if (track) {
+      try { track.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
     }
+    torchOn = false;
+    document.getElementById('torchbtn').className = 'p';
+  }
+  facing = facing === 'environment' ? 'user' : 'environment';
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+  }
+  navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+    stream = s;
+    video.srcObject = s;
+    setTimeout(checkTorch, 500);
+  }).catch(function() {});
+}
 
-    // マウス・タッチイベントの紐付け（PC・スマホ両対応）
-    previewImage.addEventListener('mousedown', startPress);
-    previewImage.addEventListener('touchstart', startPress, { passive: true });
+async function toggleZoom() {
+  if (!stream) return;
+  curZoom = (curZoom === 1) ? 2 : 1;
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
 
-    window.addEventListener('mouseup', cancelPress);
-    window.addEventListener('touchend', cancelPress);
-    window.addEventListener('touchcancel', cancelPress);
-  </script>
+  var caps = track.getCapabilities ? track.getCapabilities() : {};
+  if (caps.zoom) {
+    try {
+      await track.applyConstraints({ advanced: [{ zoom: curZoom }] });
+      document.getElementById('zoom-btn').textContent = curZoom + 'x';
+      return;
+    } catch (e) {
+      console.log("Standard zoom failed, trying device switch...", e);
+    }
+  }
+
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+  }
+
+  var constraints = getCamConstraints();
+  if (curZoom === 2) {
+    constraints.video.width = { ideal: 4032 };
+    constraints.video.height = { ideal: 3024 };
+  }
+
+  try {
+    var s = await navigator.mediaDevices.getUserMedia(constraints);
+    stream = s;
+    video.srcObject = s;
+    await video.play().catch(function(){});
+    document.getElementById('zoom-btn').textContent = curZoom + 'x';
+    setTimeout(updateVF, 300);
+    setTimeout(checkTorch, 500);
+  } catch(e) {
+    console.log("Lens switch failed:", e);
+    curZoom = 1;
+    document.getElementById('zoom-btn').textContent = '1x';
+    startCam();
+  }
+}
+
+// --- 長押し（ロングプレス）直接保存のイベント処理 ---
+function startLongPress(e) {
+  if (e.type === 'mousedown' && e.button !== 0) return; // 左クリック以外は除外
+  
+  // 0.8秒（800ms）押し続けたら保存を実行
+  pressTimer = setTimeout(function() {
+    executeDirectDownload();
+    cancelLongPress();
+  }, 800);
+}
+
+function cancelLongPress() {
+  if (pressTimer) {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+  }
+}
+
+function executeDirectDownload() {
+  if (!lastUrl) return;
+
+  // 擬似リンクを作って自動的にカメラロール（ローカル）へ保存
+  var dlLink = document.createElement('a');
+  dlLink.href = lastUrl;
+  dlLink.download = currentFileName || 'photo.jpg';
+  document.body.appendChild(dlLink);
+  dlLink.click();
+  document.body.removeChild(dlLink);
+
+  // 画面上に保存完了トーストをふわっと出す
+  toast.classList.add('show');
+  setTimeout(function() {
+    toast.classList.remove('show');
+  }, 2000);
+}
+
+// プレビュー画像に長押しイベントを紐付け
+mImg.addEventListener('mousedown', startLongPress);
+mImg.addEventListener('touchstart', startLongPress, { passive: true });
+
+// 指やマウスが離れたらタイマーをリセット
+window.addEventListener('mouseup', cancelLongPress);
+window.addEventListener('touchend', cancelLongPress);
+window.addEventListener('touchcancel', cancelLongPress);
+
+window.addEventListener('resize', function() { setTimeout(updateVF, 100); });
+window.addEventListener('orientationchange', function() { setTimeout(updateVF, 400); });
+setTimeout(updateVF, 100);
+
+function hideSafariUI() {
+  setTimeout(function() { window.scrollTo(0, 1); }, 100);
+  setTimeout(updateVF, 300);
+}
+window.addEventListener('load', hideSafariUI);
+window.addEventListener('orientationchange', hideSafariUI);
+</script>
 </body>
 </html>
