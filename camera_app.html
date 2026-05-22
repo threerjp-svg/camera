@@ -20,7 +20,6 @@ html{width:100%;height:100%;background:#000;}body{width:100%;min-height:100%;hei
 #video::-webkit-media-controls-panel { display:none !important; }
 #video::-webkit-media-controls-start-playback-button { display:none !important; }
 video::-webkit-media-controls-overlay-play-button { display:none !important; }
-* { -webkit-media-controls: none !important; }
 #canvas{display:none;}
 #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
 #perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:rgba(255,255,255,0.65);font-size:14px;text-align:center;padding:32px;z-index:20;background:#111;}
@@ -52,7 +51,13 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 <div id="app">
   <div id="vf-area">
     <div id="vf-box">
-      <video id="video" autoplay playsinline muted disablepictureinpicture disableremoteplayback x-webkit-airplay="deny" webkit-playsinline></video>
+      <video
+  id="video"
+  autoplay
+  playsinline
+  muted
+  webkit-playsinline
+></video>
 
       <div id="flash"></div>
 
@@ -193,18 +198,43 @@ function getCamConstraints() {
   };
 }
 
-function startCam() {
-  navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+async function startCam() {
+
+  try {
+
+    if (
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ) {
+      document.getElementById('permtxt').textContent =
+        'このブラウザはカメラに対応していません';
+      return;
+    }
+
+    const s = await navigator.mediaDevices.getUserMedia(
+      getCamConstraints()
+    );
+
     stream = s;
-    video.srcObject = stream;
+
+    video.srcObject = s;
+
+    // iPhone Safari対策
+    await video.play().catch(function(){});
+
     document.getElementById('perm').style.display = 'none';
 
     setTimeout(updateVF, 300);
     setTimeout(checkTorch, 500);
-  }).catch(function() {
+
+  } catch(e) {
+
+    console.log(e);
+
     document.getElementById('permtxt').textContent =
-      'カメラが起動できませんでした。Safari設定→カメラを「許可」にしてください。';
-  });
+      'カメラ起動失敗: ' + e.message;
+
+  }
 }
 
 function checkTorch() {
