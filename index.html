@@ -365,6 +365,7 @@ function shoot() {
     ctx.shadowBlur = 0;
   }
 
+// ...[省略]... ここまでは一切変更なし
   lastUrl = canvas.toDataURL('image/jpeg', 0.92);
 
   shotN++;
@@ -373,20 +374,9 @@ function shoot() {
   ti.src = lastUrl;
   ti.style.display = 'block';
 
-  mImg.src = lastUrl;
-  modal.style.display = 'flex';
+  // ★ modal.style.display = 'flex'; の1行だけを削除（またはコメントアウト）
+  // これにより、撮影時は確認画面が開かず、サムネイルに直接画像が送られます。
 }
-
-function closeModal() {
-  modal.style.display = 'none';
-  mImg.src = '';
-}
-
-function openLastShot() {
-  if (lastUrl) {
-    mImg.src = lastUrl;
-    modal.style.display = 'flex';
-  }
 }
 
 function flipCam() {
@@ -463,10 +453,10 @@ previewImage.addEventListener('touchstart', function() {
   // 念のため古いタイマーがあれば消す
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
   
-  // 2000ms = 2秒後に自動で撮影画面に戻す
+  // 3000ms = 3秒後に自動で撮影画面に戻す
   autoRedoTimer = setTimeout(function() {
     closeModal(); // 確認画面を閉じる関数
-  }, 2000); // ★保存にかかる時間（秒数）をここで調整できます
+  }, 3000); // ★保存にかかる時間（秒数）をここで調整できます
 });
 
 // 指が離れた時（ただタップしただけ、または途中でやめた時）はタイマーをキャンセル
