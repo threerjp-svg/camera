@@ -119,10 +119,11 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
     <!-- 3段目: タイムスタンプ位置 + TS ON/OFF + ライト -->
     <div class="row" id="tsrow">
       <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
-      <button class="p on" onclick="setTSP('left')">左下</button>
-      <button class="p" onclick="setTSP('center')">中央下</button>
-      <button class="p" onclick="setTSP('right')">右下</button>
-      <button class="p" id="torchbtn" onclick="toggleTorch()">🔦 OFF</button>
+      <button class="p on" onclick="setTSP('left')">Left</button>
+      <button class="p" onclick="setTSP('center')">Center</button>
+      <button class="p" onclick="setTSP('right')">Right</button>
+      <button id="torchbtn" style="display:none;">Flash</button> 
+<!-- 自動連動にするため、このボタン自体を非表示（display:none）にしてもOKです。残す場合はテキストを「Flah」に書き換えてください -->
     </div>
     <div class="sep"></div>
     <div id="srow">
@@ -328,14 +329,46 @@ function getTS() {
     ' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
 }
 
-function shoot() {
+// 👇 先頭に「async」を追加します
+async function shoot() {
   if (!stream) { startCam(); return; }
   var vw = video.videoWidth;
   var vh = video.videoHeight;
   if (!vw || !vh) return;
 
+  // 👇 1. シャッターの瞬間に背面のLEDライトをONにする
+  if (torchSupported) {
+    await turnOnLed();
+    // ライトが完全に光るまで一瞬（0.1秒）待つ猶予を作るとより確実です
+    await new Promise(resolve => setTimeout(resolve, 100)); 
+  }
+
   flash.style.opacity = '0.85';
   setTimeout(function() { flash.style.opacity = '0'; }, 100);
+
+  var sz = mpSz[curMP];
+  var ratio = ratios[curR];
+  
+  // (中略：既存のキャンバス描画〜タイムスタンプ〜lastUrl生成までのコード)
+  
+  lastUrl = canvas.toDataURL('image/jpeg', 0.92);
+  canvas.toBlob(function(blob) {
+    lastBlob = blob;
+  }, 'image/jpeg', 0.92);
+
+  // 👇 2. 写真のデータ化処理が終わった直後に、LEDライトをOFFにする
+  if (torchSupported) {
+    turnOffLed();
+  }
+
+  shotN++;
+  var ti = document.getElementById('timg');
+  document.getElementById('tico').style.display = 'none';
+  ti.src = lastUrl;
+  ti.style.display = 'block';
+
+  openM();
+}
 
   var sz = mpSz[curMP];
   var ratio = ratios[curR];
