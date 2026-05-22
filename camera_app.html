@@ -40,6 +40,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;}
 #modal.show{display:flex;}
+#batch-modal.show{display:flex;}
 #mimg{max-width:100%;max-height:58vh;border-radius:10px;object-fit:contain;}
 #modal .msg{color:#fff;font-size:14px;text-align:center;line-height:1.8;}
 #modal .sub{color:rgba(255,255,255,0.4);font-size:11px;text-align:center;line-height:1.6;}
@@ -92,12 +93,17 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
     </div>
     <div class="sep"></div>
     <div id="srow">
-      <div id="thumb" onclick="openM()">
-        <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="3"/>
-          <path d="M3 9l4-4 4 4 4-6 4 6"/>
-        </svg>
-        <img id="timg" alt=""/>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="thumb" onclick="openM()">
+          <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <path d="M3 9l4-4 4 4 4-6 4 6"/>
+          </svg>
+          <img id="timg" alt=""/>
+        </div>
+        <button id="batch-btn" onclick="openBatch()" style="display:none;background:rgba(255,200,0,0.85);color:#000;border:none;border-radius:12px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;align-items:center;gap:3px;">
+          📁 <span id="batch-count">0枚</span>
+        </button>
       </div>
       <button id="shutter" onclick="shoot()"></button>
       <button id="flip" onclick="flipCam()">
@@ -118,6 +124,20 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   <button id="mclose" onclick="closeM()">閉じる</button>
 </div>
 
+<!-- 一括保存モーダル -->
+<div id="batch-modal" style="position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.96);flex-direction:column;display:none;align-items:center;gap:10px;padding:16px;">
+  <div style="width:100%;display:flex;justify-content:space-between;align-items:center;">
+    <span style="color:#fff;font-size:15px;font-weight:600;">撮影した写真</span>
+    <button onclick="closeBatch()" style="background:rgba(255,255,255,0.12);color:#fff;border:none;border-radius:16px;padding:6px 14px;font-size:13px;cursor:pointer;">閉じる</button>
+  </div>
+  <div id="batch-grid" style="width:100%;flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;min-height:0;"></div>
+  <p id="batch-hint" style="color:rgba(255,255,255,0.45);font-size:11px;text-align:center;min-height:16px;"></p>
+  <div style="display:flex;gap:10px;width:100%;">
+    <button onclick="saveAll()" style="flex:1;background:#FFD700;color:#000;border:none;border-radius:22px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;">💾 まとめて保存</button>
+    <button onclick="clearAll()" style="background:rgba(255,60,60,0.3);color:#fff;border:none;border-radius:22px;padding:13px 16px;font-size:13px;cursor:pointer;">🗑️</button>
+  </div>
+</div>
+
 <canvas id="canvas"></canvas>
 <script>
 var stream = null;
@@ -129,6 +149,7 @@ var tsOn = true;
 var shotN = 0;
 var lastUrl = null;
 var lastBlob = null;
+var photosList = []; // 撮影した写真一覧
 var torchOn = false;
 var torchSupported = false;
 
@@ -324,7 +345,11 @@ function shoot() {
   }
 
   lastUrl = canvas.toDataURL('image/jpeg', 0.92);
-  canvas.toBlob(function(blob) { lastBlob = blob; }, 'image/jpeg', 0.92);
+  canvas.toBlob(function(blob) {
+    lastBlob = blob;
+    photosList.push({ url: lastUrl, blob: blob, name: 'photo_' + Date.now() + '.jpg' });
+    updateBatchBtn();
+  }, 'image/jpeg', 0.92);
 
   shotN++;
   var ti = document.getElementById('timg');
@@ -357,6 +382,99 @@ function fallbackSave() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+function updateBatchBtn() {
+  var btn = document.getElementById('batch-btn');
+  var cnt = document.getElementById('batch-count');
+  if (photosList.length > 0) {
+    btn.style.display = 'flex';
+    cnt.textContent = photosList.length + '枚';
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function openBatch() {
+  var grid = document.getElementById('batch-grid');
+  grid.innerHTML = '';
+  for (var i = 0; i < photosList.length; i++) {
+    var item = document.createElement('div');
+    item.style.cssText = 'position:relative;aspect-ratio:3/4;background:#222;border-radius:6px;overflow:hidden;';
+    var img = document.createElement('img');
+    img.src = photosList[i].url;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+    var del = document.createElement('button');
+    del.textContent = '✕';
+    del.style.cssText = 'position:absolute;top:3px;right:3px;background:rgba(0,0,0,0.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;';
+    (function(idx) {
+      del.onclick = function() {
+        photosList.splice(idx, 1);
+        openBatch();
+        updateBatchBtn();
+      };
+    })(i);
+    item.appendChild(img);
+    item.appendChild(del);
+    grid.appendChild(item);
+  }
+  document.getElementById('batch-modal').className = 'show';
+}
+
+function closeBatch() {
+  document.getElementById('batch-modal').className = '';
+}
+
+function saveAll() {
+  if (photosList.length === 0) return;
+  var hint = document.getElementById('batch-hint');
+  hint.textContent = '保存中... 0/' + photosList.length;
+
+  // Web Share APIで一括共有（iOS対応）
+  if (navigator.share && navigator.canShare) {
+    var files = [];
+    for (var i = 0; i < photosList.length; i++) {
+      files.push(new File([photosList[i].blob], photosList[i].name, { type: 'image/jpeg' }));
+    }
+    if (navigator.canShare({ files: files })) {
+      navigator.share({ files: files, title: '写真' }).then(function() {
+        hint.textContent = '✅ 共有メニューから「写真に保存」を選んでください';
+      }).catch(function(e) {
+        if (e.name !== 'AbortError') saveAllFallback();
+      });
+      return;
+    }
+  }
+  saveAllFallback();
+}
+
+function saveAllFallback() {
+  // 1枚ずつ順番にダウンロード
+  var hint = document.getElementById('batch-hint');
+  var idx = 0;
+  function next() {
+    if (idx >= photosList.length) {
+      hint.textContent = '✅ ' + photosList.length + '枚を保存しました';
+      return;
+    }
+    hint.textContent = '保存中... ' + (idx+1) + '/' + photosList.length;
+    var a = document.createElement('a');
+    a.href = photosList[idx].url;
+    a.download = photosList[idx].name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    idx++;
+    setTimeout(next, 600);
+  }
+  next();
+}
+
+function clearAll() {
+  if (!confirm(photosList.length + '枚の写真をすべて削除しますか？')) return;
+  photosList = [];
+  updateBatchBtn();
+  closeBatch();
 }
 
 function openM() {
