@@ -73,13 +73,14 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
       <button class="p" onclick="setR('1:1')">1:1</button>
       <button class="p on" onclick="setR('3:4')">3:4</button>
       <button class="p" onclick="setR('2:3')">2:3</button>
+      <button class="p" onclick="setR('9:16')">9:16</button>
     </div>
     <div class="sep"></div>
     <!-- 2段目: 画素数 -->
     <div class="row" id="mprow">
       <button class="p" onclick="setMP(2)">200万</button>
       <button class="p on" onclick="setMP(3)">300万</button>
-      <button class="p" onclick="setMP(5)">500万</button>
+      <button class="p" onclick="setMP(6)">600万</button>
       <button class="p" onclick="setMP(12)">1200万</button>
     </div>
     <div class="sep"></div>
@@ -101,8 +102,8 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
           </svg>
           <img id="timg" alt=""/>
         </div>
-        <button id="batch-btn" onclick="openBatch()" style="display:none;background:rgba(255,200,0,0.85);color:#000;border:none;border-radius:12px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;align-items:center;gap:3px;">
-          📁 <span id="batch-count">0枚</span>
+        <button id="batch-btn" onclick="openBatch()" style="display:none;background:rgba(255,200,0,0.85);color:#000;border:none;border-radius:12px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;">
+         📁
         </button>
       </div>
       <button id="shutter" onclick="shoot()"></button>
@@ -157,11 +158,12 @@ var video = document.getElementById('video');
 var canvas = document.getElementById('canvas');
 var flash = document.getElementById('flash');
 
-var ratios = {'1:1':1,'3:4':0.75,'2:3':0.6667};
+var ratios = {'1:1':1,'3:4':0.75,'2:3':0.6667,
+  '9:16':0.5625};
 var mpSz = {
   2:{w:1200,h:1600},
   3:{w:1536,h:2048},
-  5:{w:1944,h:2592},
+  6:{w:2160,h:2880},
   12:{w:3024,h:4032}
 };
 
@@ -243,8 +245,8 @@ function setR(r) {
 
 function setMP(mp) {
   curMP = mp;
-  var lbl = {2:'約200万画素',3:'約300万画素',5:'約500万画素',12:'約1200万画素'};
-  var btn = {2:'200万',3:'300万',5:'500万',12:'1200万'};
+  var lbl = {2:'約200万画素',3:'約300万画素',5:'約600万画素',12:'約1200万画素'};
+  var btn = {2:'200万',3:'300万',6:'600万',12:'1200万'};
   var btns = document.querySelectorAll('#mprow .p');
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = btns[i].textContent === btn[mp] ? 'p on' : 'p';
@@ -365,8 +367,11 @@ function savePhoto() {
   var hint = document.getElementById('save-hint');
   if (navigator.share && lastBlob) {
     var file = new File([lastBlob], 'photo_' + Date.now() + '.jpg', { type: 'image/jpeg' });
-    navigator.share({ files: [file], title: '写真' }).then(function() {
-      hint.textContent = '✅ 共有メニューから「写真に保存」を選んでください';
+    function closeM() {
+  document.getElementById('modal').className = '';
+
+  resetThumb();
+}
     }).catch(function(e) {
       if (e.name !== 'AbortError') fallbackSave();
     });
@@ -386,10 +391,9 @@ function fallbackSave() {
 
 function updateBatchBtn() {
   var btn = document.getElementById('batch-btn');
-  var cnt = document.getElementById('batch-count');
+
   if (photosList.length > 0) {
     btn.style.display = 'flex';
-    cnt.textContent = photosList.length + '枚';
   } else {
     btn.style.display = 'none';
   }
@@ -470,9 +474,22 @@ function saveAllFallback() {
   next();
 }
 
+function resetThumb() {
+  photosList = [];
+  lastUrl = null;
+  lastBlob = null;
+
+  document.getElementById('timg').style.display = 'none';
+  document.getElementById('tico').style.display = 'block';
+
+  updateBatchBtn();
+}
+
 function clearAll() {
   if (!confirm(photosList.length + '枚の写真をすべて削除しますか？')) return;
-  photosList = [];
+
+  resetThumb();
+
   updateBatchBtn();
   closeBatch();
 }
