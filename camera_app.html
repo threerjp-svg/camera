@@ -364,19 +364,39 @@ function shoot() {
 
 function savePhoto() {
   if (!lastUrl) return;
-  var hint = document.getElementById('save-hint');
-  if (navigator.share && lastBlob) {
-    var file = new File([lastBlob], 'photo_' + Date.now() + '.jpg', { type: 'image/jpeg' });
-    function closeM() {
-  document.getElementById('modal').className = '';
 
-  resetThumb();
-}
+  var hint = document.getElementById('save-hint');
+
+  if (navigator.share && lastBlob) {
+
+    var file = new File(
+      [lastBlob],
+      'photo_' + Date.now() + '.jpg',
+      { type: 'image/jpeg' }
+    );
+
+    navigator.share({
+      files: [file],
+      title: '写真'
+    }).then(function() {
+
+      hint.textContent =
+        '✅ 共有メニューから「写真に保存」を選んでください';
+
+      resetThumb();
+
     }).catch(function(e) {
-      if (e.name !== 'AbortError') fallbackSave();
+
+      if (e.name !== 'AbortError') {
+        fallbackSave();
+      }
+
     });
+
   } else {
+
     fallbackSave();
+
   }
 }
 
