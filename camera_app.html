@@ -198,7 +198,7 @@ function startCam() {
     stream = s;
     video.srcObject = stream;
     document.getElementById('perm').style.display = 'none';
-    shotEl.style.display = 'block';
+
     setTimeout(updateVF, 300);
     setTimeout(checkTorch, 500);
   }).catch(function() {
