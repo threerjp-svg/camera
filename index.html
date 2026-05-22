@@ -67,11 +67,9 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 
 #modal{position:fixed;inset:0;background:#000;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px env(safe-area-inset-bottom);}
 #m-box{width:100%;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-/* 長押し保存（メニュー出し）ができるように、あえてuser-selectを可能（auto）に設定 */
 #m-img{max-width:100%;max-height:100%;object-fit:contain;display:block;user-select:auto;-webkit-user-select:auto;}
 #m-ctrl{width:100%;padding:16px 24px;display:flex;justify-content:center;align-items:center;flex-shrink:0;}
 .m-btn{flex:1;max-width:320px;height:50px;border-radius:25px;font-size:16px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
-/* 背景色をロイヤルブルー、文字色を白に変更 */
 #m-cancel{background:#4169e1;color:#fff;}
 </style>
 </head>
@@ -117,6 +115,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
     <div class="sep"></div>
     <div id="srow">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <!-- サムネイルタップ時の大きく開く動作（パターンA）を残しています -->
         <div id="thumb" onclick="openLastShot()">
           <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5">
             <rect x="3" y="3" width="18" height="18" rx="3"/>
@@ -143,7 +142,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
     <img id="m-img" alt="プレビュー"/>
   </div>
   <div id="m-ctrl">
-    <!-- 文言を「Redo」に変更し、不要なDLリンクを削除 -->
     <button id="m-cancel" class="m-btn" onclick="closeModal()">Redo</button>
   </div>
 </div>
@@ -365,7 +363,6 @@ function shoot() {
     ctx.shadowBlur = 0;
   }
 
-// ...[省略]... ここまでは一切変更なし
   lastUrl = canvas.toDataURL('image/jpeg', 0.92);
 
   shotN++;
@@ -373,10 +370,9 @@ function shoot() {
   document.getElementById('tico').style.display = 'none';
   ti.src = lastUrl;
   ti.style.display = 'block';
-
-  // ★ modal.style.display = 'flex'; の1行だけを削除（またはコメントアウト）
-  // これにより、撮影時は確認画面が開かず、サムネイルに直接画像が送られます。
-}
+  
+  // 大きく確認したい時のために、バックグラウンドのモーダル用画像も更新
+  mImg.src = lastUrl; 
 }
 
 function flipCam() {
@@ -444,22 +440,31 @@ async function toggleZoom() {
   }
 }
 
+// サムネイルをタップした時に確認モーダルを開く関数
+function openLastShot() {
+  if (!lastUrl) return;
+  modal.style.display = 'flex';
+}
+
+function closeModal() {
+  modal.style.display = 'none';
+}
+
 // --- 長押し開始から一定時間後に自動で確認画面を閉じる（Redo）処理 ---
 var autoRedoTimer = null;
 var previewImage = document.getElementById('m-img');
 
 // 画像に指が触れたらタイマーを開始
 previewImage.addEventListener('touchstart', function() {
-  // 念のため古いタイマーがあれば消す
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
   
-  // 3000ms = 3秒後に自動で撮影画面に戻す
+  // 3000ms = 3秒後に自動で確認画面を閉じる
   autoRedoTimer = setTimeout(function() {
-    closeModal(); // 確認画面を閉じる関数
-  }, 3000); // ★保存にかかる時間（秒数）をここで調整できます
+    closeModal(); 
+  }, 3000);
 });
 
-// 指が離れた時（ただタップしただけ、または途中でやめた時）はタイマーをキャンセル
+// 指が離れた時はタイマーをキャンセル
 previewImage.addEventListener('touchend', function() {
   if (autoRedoTimer) {
     clearTimeout(autoRedoTimer);
