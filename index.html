@@ -290,7 +290,7 @@ function setR(r) {
 function setMP(mp) {
   curMP = mp;
   var lbl = {2:'約200万画素',3:'約300万画素',5:'約600万画素',12:'約1200万画素'};
-  var btn = {2:'200万',3:'300万',6:'600万',12:'1200万'};
+  var btn = {2:'2MP',3:'3MP',6:'6MP',12:'12MP'};
   var btns = document.querySelectorAll('#mprow .p');
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = btns[i].textContent === btn[mp] ? 'p on' : 'p';
