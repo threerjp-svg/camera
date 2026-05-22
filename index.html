@@ -63,10 +63,12 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;}
 #modal.show{display:flex;}
 #batch-modal.show{display:flex;}
-#mimg{max-width:100%;max-height:58vh;border-radius:10px;object-fit:contain;}
-#modal .msg{color:#fff;font-size:14px;text-align:center;line-height:1.8;}
-#modal .sub{color:rgba(255,255,255,0.4);font-size:11px;text-align:center;line-height:1.6;}
-#save-btn{background:#FFD700;color:#000;border:none;border-radius:22px;padding:13px 32px;font-size:15px;font-weight:700;cursor:pointer;}
+/* 写真の最大縦幅を 58vh から 72vh へ広げて大きく表示させます */
+#mimg{max-width:100%;max-height:72vh;border-radius:10px;object-fit:contain;}
+#modal .msg{display:none;} /* 不要なテキスト用のスタイルを非表示に設定 */
+#modal .sub{display:none;}
+/* ボタンの色を royalblue へ、文字色を白(#fff)へ変更します */
+#save-btn{background:#4169e1;color:#fff;border:none;border-radius:22px;padding:13px 32px;font-size:15px;font-weight:700;cursor:pointer;}
 #mclose{background:rgba(255,255,255,0.12);color:#fff;border:none;border-radius:22px;padding:10px 28px;font-size:13px;cursor:pointer;}
 </style>
 </head>
@@ -145,8 +147,8 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 
 <div id="modal">
   <img id="mimg" src="" alt="撮影写真"/>
-  <p class="msg">写真を長押し →「写真に追加」で保存<br>または下のボタンをタップ</p>
-  <p class="sub" id="save-hint"></p>
+  <!-- 案内テキストの2行を削除しました（空のヒント用pタグだけ残します） -->
+  <p id="save-hint" style="color:rgba(255,255,255,0.6); font-size:12px; text-align:center;"></p>
   <button id="save-btn" onclick="savePhoto()">💾 写真を保存</button>
   <button id="mclose" onclick="closeM()">閉じる</button>
 </div>
