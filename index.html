@@ -65,10 +65,10 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #zoom-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 
-/* 確認画面（モーダル）の復活とスタイル調整 */
 #modal{position:fixed;inset:0;background:#000;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px env(safe-area-inset-bottom);}
 #m-box{width:100%;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-#m-img{max-width:100%;max-height:100%;object-fit:contain;display:block;}
+/* 長押し保存（メニュー出し）ができるように、あえてuser-selectを可能（auto）に設定 */
+#m-img{max-width:100%;max-height:100%;object-fit:contain;display:block;user-select:auto;-webkit-user-select:auto;}
 #m-ctrl{width:100%;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-shrink:0;}
 .m-btn{flex:1;height:50px;border-radius:25px;font-size:15px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
 #m-cancel{background:rgba(255,255,255,0.15);color:#fff;}
@@ -93,7 +93,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   </div>
 
   <div id="ctrl">
-    <!-- 1段目: アスペクト比 -->
     <div class="row" id="rrow">
       <button class="p" onclick="setR('1:1')">1:1</button>
       <button class="p on" onclick="setR('3:4')">3:4</button>
@@ -101,7 +100,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
       <button class="p" onclick="setR('9:16')">9:16</button>
     </div>
     <div class="sep"></div>
-    <!-- 2段目: 画素数 -->
     <div class="row" id="mprow">
       <button class="p" onclick="setMP(2)">200万</button>
       <button class="p on" onclick="setMP(3)">300万</button>
@@ -109,7 +107,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
       <button class="p" onclick="setMP(12)">1200万</button>
     </div>
     <div class="sep"></div>
-    <!-- 3段目: タイムスタンプ + ライト(Flash) -->
     <div class="row" id="tsrow">
       <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
       <button class="p on" onclick="setTSP('left')">Left</button>
@@ -140,15 +137,15 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   </div>
 </div>
 
-<!-- 確認画面（モーダル） -->
+<!-- 確認画面 -->
 <div id="modal">
   <div id="m-box">
     <img id="m-img" alt="プレビュー"/>
   </div>
   <div id="m-ctrl">
     <button id="m-cancel" class="m-btn" onclick="closeModal()">とりなおす</button>
-    <!-- ダウンロードを押したら1秒後に撮影画面に自動で戻る仕掛けを追加 -->
-    <a id="m-dl" class="m-btn" href="#" download="" onclick="triggerDownloadAndClose(event)">保存する</a>
+    <!-- ボタンテキストを「写真に保存」に変更 -->
+    <a id="m-dl" class="m-btn" href="#" download="" onclick="triggerDownloadAndClose(event)">写真に保存</a>
   </div>
 </div>
 
@@ -377,10 +374,8 @@ function shoot() {
   ti.src = lastUrl;
   ti.style.display = 'block';
 
-  // 確認モーダルを表示して画像をセット
   mImg.src = lastUrl;
   
-  // ファイル名の生成とセット
   var d = new Date();
   var fn = 'photo_' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate())+
            '_' + String(d.getHours()).padStart(2,'0') + String(d.getMinutes()).padStart(2,'0') + String(d.getSeconds()).padStart(2,'0') + '.jpg';
@@ -392,9 +387,7 @@ function shoot() {
   modal.style.display = 'flex';
 }
 
-// 保存ボタンを押したときの処理
 function triggerDownloadAndClose(e) {
-  // 1秒後に自動で確認画面を閉じて撮影に戻す
   setTimeout(function() {
     closeModal();
   }, 1000);
