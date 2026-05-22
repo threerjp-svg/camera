@@ -1,309 +1,102 @@
-```html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-touch-fullscreen" content="yes">
+<meta name="theme-color" content="#000000">
+
+<meta name="apple-mobile-web-app-title" content="カメラ">
 
 <title>カメラ</title>
-
 <style>
-*,*::before,*::after{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
-html,body{
-  width:100%;
-  height:100%;
-  background:#000;
-  overflow:hidden;
-  font-family:-apple-system,sans-serif;
-}
-
-body{
-  position:fixed;
-  inset:0;
-  -webkit-tap-highlight-color:transparent;
-  user-select:none;
-}
-
-#app{
-  width:100%;
-  height:100%;
-  display:flex;
-  flex-direction:column;
-  background:#000;
-}
-
-#vf-area{
-  flex:1;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  background:#000;
-}
-
-#vf-box{
-  position:relative;
-  overflow:hidden;
-  background:#111;
-}
-
-#video{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-
-#canvas{
-  display:none;
-}
-
-#flash{
-  position:absolute;
-  inset:0;
-  background:#fff;
-  opacity:0;
-  pointer-events:none;
-  z-index:10;
-}
-
-#perm{
-  position:absolute;
-  inset:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:14px;
-  padding:32px;
-  text-align:center;
-  color:rgba(255,255,255,.7);
-  background:#111;
-  z-index:20;
-}
-
-#start-btn{
-  background:#fff;
-  color:#000;
-  border:none;
-  border-radius:28px;
-  padding:13px 30px;
-  font-size:15px;
-  font-weight:600;
-}
-
-#ctrl{
-  width:100%;
-  background:#0a0a0a;
-  padding:8px 16px calc(env(safe-area-inset-bottom,8px) + 8px);
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-}
-
-.row{
-  display:flex;
-  justify-content:center;
-  gap:5px;
-  flex-wrap:wrap;
-}
-
-.p{
-  background:rgba(255,255,255,.1);
-  border:1px solid rgba(255,255,255,.15);
-  color:rgba(255,255,255,.7);
-  border-radius:16px;
-  padding:4px 11px;
-  font-size:10px;
-}
-
-.p.on{
-  background:#fff;
-  color:#000;
-}
-
-.p.ton{
-  background:#FFD700;
-  color:#000;
-}
-
-.sep{
-  height:1px;
-  background:rgba(255,255,255,.06);
-}
-
-#srow{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding-top:4px;
-}
-
-#thumb{
-  width:48px;
-  height:48px;
-  border-radius:10px;
-  overflow:hidden;
-  background:rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.15);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-#timg{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:none;
-}
-
-#shutter{
-  width:68px;
-  height:68px;
-  border-radius:50%;
-  border:3px solid #fff;
-  background:transparent;
-  position:relative;
-}
-
-#shutter::after{
-  content:'';
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:#fff;
-  position:absolute;
-  inset:0;
-  margin:auto;
-}
-
-#flip{
-  width:48px;
-  height:48px;
-  border-radius:50%;
-  background:rgba(255,255,255,.12);
-  border:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-#modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:100;
-  background:rgba(0,0,0,.95);
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-  padding:20px;
-}
-
-#modal.show{
-  display:flex;
-}
-
-#mimg{
-  max-width:100%;
-  max-height:58vh;
-  border-radius:10px;
-}
-
-.msg{
-  color:#fff;
-  text-align:center;
-  line-height:1.8;
-}
-
-.sub{
-  color:rgba(255,255,255,.45);
-  font-size:11px;
-}
-
-#save-btn{
-  background:#FFD700;
-  color:#000;
-  border:none;
-  border-radius:22px;
-  padding:13px 32px;
-  font-weight:700;
-}
-
-#mclose{
-  background:rgba(255,255,255,.12);
-  color:#fff;
-  border:none;
-  border-radius:22px;
-  padding:10px 28px;
-}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{width:100%;height:100%;background:#000;}body{width:100%;min-height:100%;height:100%;background:#000;overflow:hidden;font-family:-apple-system,sans-serif;-webkit-tap-highlight-color:transparent;user-select:none;position:fixed;top:0;left:0;right:0;bottom:0;}
+#app{width:100%;height:100%;display:flex;flex-direction:column;background:#000;align-items:center;}
+#vf-area{width:100%;flex:1;min-height:0;position:relative;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#vf-box{position:relative;background:#111;overflow:hidden;}
+#video{width:100%;height:100%;object-fit:cover;display:block;}
+/* iOSが表示する赤いボタンを非表示 */
+#video::-webkit-media-controls { display:none !important; }
+#video::-webkit-media-controls-enclosure { display:none !important; }
+#video::-webkit-media-controls-panel { display:none !important; }
+#video::-webkit-media-controls-start-playback-button { display:none !important; }
+video::-webkit-media-controls-overlay-play-button { display:none !important; }
+#canvas{display:none;}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
+#perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:rgba(255,255,255,0.65);font-size:14px;text-align:center;padding:32px;z-index:20;background:#111;}
+#start-btn{background:#fff;color:#000;border:none;border-radius:28px;padding:13px 30px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
+#ctrl{width:100%;background:#0a0a0a;padding:7px 16px calc(env(safe-area-inset-bottom,8px) + 6px);display:flex;flex-direction:column;gap:5px;flex-shrink:0;}
+.row{display:flex;justify-content:center;gap:5px;align-items:center;flex-wrap:wrap;}
+.p{background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.18);color:rgba(255,255,255,0.6);border-radius:16px;padding:4px 11px;font-size:10px;font-weight:500;cursor:pointer;white-space:nowrap;transition:all 0.15s;}
+.p.on{background:#fff;color:#000;border-color:#fff;}
+.p.ton{background:#FFD700;color:#000;border-color:#FFD700;}
+.sep{height:0.5px;background:rgba(255,255,255,0.07);}
+#srow{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 0;}
+#thumb{width:48px;height:48px;border-radius:9px;background:rgba(255,255,255,0.1);overflow:hidden;border:0.5px solid rgba(255,255,255,0.2);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#timg{width:100%;height:100%;object-fit:cover;display:none;}
+#shutter{width:68px;height:68px;border-radius:50%;background:transparent;border:3px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.1s;position:relative;}
+#shutter:active{transform:scale(0.92);}
+#shutter::after{content:'';width:56px;height:56px;border-radius:50%;background:#fff;}
+#flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;}
+#modal.show{display:flex;}
+#batch-modal.show{display:flex;}
+#mimg{max-width:100%;max-height:58vh;border-radius:10px;object-fit:contain;}
+#modal .msg{color:#fff;font-size:14px;text-align:center;line-height:1.8;}
+#modal .sub{color:rgba(255,255,255,0.4);font-size:11px;text-align:center;line-height:1.6;}
+#save-btn{background:#FFD700;color:#000;border:none;border-radius:22px;padding:13px 32px;font-size:15px;font-weight:700;cursor:pointer;}
+#mclose{background:rgba(255,255,255,0.12);color:#fff;border:none;border-radius:22px;padding:10px 28px;font-size:13px;cursor:pointer;}
 </style>
 </head>
-
 <body>
-
 <div id="app">
-
   <div id="vf-area">
     <div id="vf-box">
-
       <video
-        id="video"
-        autoplay
-        muted
-        playsinline
-        webkit-playsinline
-      ></video>
+  id="video"
+  autoplay
+  playsinline
+  muted
+  webkit-playsinline
+></video>
 
       <div id="flash"></div>
 
       <div id="perm">
-
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.45)" stroke-width="1.3">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
           <circle cx="12" cy="13" r="4"/>
         </svg>
-
-        <span id="permtxt">
-          カメラへのアクセスを許可してください
-        </span>
-
-        <button id="start-btn" onclick="startCam()">
-          カメラを起動
-        </button>
-
+        <span id="permtxt">カメラへのアクセスを許可してください</span>
+        <button id="start-btn" onclick="startCam()">カメラを起動</button>
       </div>
     </div>
   </div>
 
   <div id="ctrl">
-
+    <!-- 1段目: アスペクト比 -->
     <div class="row" id="rrow">
       <button class="p" onclick="setR('1:1')">1:1</button>
       <button class="p on" onclick="setR('3:4')">3:4</button>
       <button class="p" onclick="setR('2:3')">2:3</button>
       <button class="p" onclick="setR('9:16')">9:16</button>
     </div>
-
     <div class="sep"></div>
-
+    <!-- 2段目: 画素数 -->
     <div class="row" id="mprow">
       <button class="p" onclick="setMP(2)">200万</button>
       <button class="p on" onclick="setMP(3)">300万</button>
       <button class="p" onclick="setMP(6)">600万</button>
       <button class="p" onclick="setMP(12)">1200万</button>
     </div>
-
     <div class="sep"></div>
-
+    <!-- 3段目: タイムスタンプ位置 + TS ON/OFF + ライト -->
     <div class="row" id="tsrow">
       <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
       <button class="p on" onclick="setTSP('left')">左下</button>
@@ -311,124 +104,102 @@ body{
       <button class="p" onclick="setTSP('right')">右下</button>
       <button class="p" id="torchbtn" onclick="toggleTorch()">🔦 OFF</button>
     </div>
-
     <div class="sep"></div>
-
     <div id="srow">
-
-      <div id="thumb" onclick="openM()">
-
-        <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="3"/>
-          <path d="M3 9l4-4 4 4 4-6 4 6"/>
-        </svg>
-
-        <img id="timg">
-
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+        <div id="thumb" onclick="openM()">
+          <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="3"/>
+            <path d="M3 9l4-4 4 4 4-6 4 6"/>
+          </svg>
+          <img id="timg" alt=""/>
+        </div>
       </div>
-
       <button id="shutter" onclick="shoot()"></button>
-
       <button id="flip" onclick="flipCam()">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
-          <path d="M1 4v6h6"/>
-          <path d="M23 20v-6h-6"/>
+          <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
           <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
         </svg>
       </button>
-
     </div>
   </div>
 </div>
 
 <div id="modal">
-
-  <img id="mimg">
-
-  <p class="msg">
-    写真を長押し →「写真に追加」で保存
-  </p>
-
+  <img id="mimg" src="" alt="撮影写真"/>
+  <p class="msg">写真を長押し →「写真に追加」で保存<br>または下のボタンをタップ</p>
   <p class="sub" id="save-hint"></p>
-
-  <button id="save-btn" onclick="savePhoto()">
-    💾 写真を保存
-  </button>
-
-  <button id="mclose" onclick="closeM()">
-    閉じる
-  </button>
-
+  <button id="save-btn" onclick="savePhoto()">💾 写真を保存</button>
+  <button id="mclose" onclick="closeM()">閉じる</button>
 </div>
 
+
 <canvas id="canvas"></canvas>
-
 <script>
-let stream = null;
-let facing = 'environment';
-let curR = '3:4';
-let curMP = 3;
-let tsPos = 'left';
-let tsOn = true;
-let lastUrl = null;
-let lastBlob = null;
-let torchOn = false;
-let torchSupported = false;
+var stream = null;
+var facing = 'environment';
+var curR = '3:4';
+var curMP = 3;
+var tsPos = 'left';
+var tsOn = true;
+var shotN = 0;
+var lastUrl = null;
+var lastBlob = null;
+var torchOn = false;
+var torchSupported = false;
 
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const flash = document.getElementById('flash');
+var video = document.getElementById('video');
+var canvas = document.getElementById('canvas');
+var flash = document.getElementById('flash');
 
-video.disablePictureInPicture = true;
-
-const ratios = {
-  '1:1':1,
-  '3:4':0.75,
-  '2:3':0.6667,
-  '9:16':0.5625
-};
-
-const mpSz = {
+var ratios = {'1:1':1,'3:4':0.75,'2:3':0.6667,
+  '9:16':0.5625};
+var mpSz = {
   2:{w:1200,h:1600},
   3:{w:1536,h:2048},
   6:{w:2160,h:2880},
   12:{w:3024,h:4032}
 };
 
-function updateVF(){
-  const area = document.getElementById('vf-area');
-  const box = document.getElementById('vf-box');
-
-  let w = area.offsetWidth;
-  let h = area.offsetHeight;
-  let r = ratios[curR];
-
-  let bw = Math.floor(h * r);
-  let bh = h;
-
-  if(bw > w){
-    bw = w;
-    bh = Math.floor(w / r);
-  }
-
-  box.style.width = bw + 'px';
-  box.style.height = bh + 'px';
+function updateVF() {
+  var area = document.getElementById('vf-area');
+  var box = document.getElementById('vf-box');
+  var aW = area.offsetWidth;
+  var aH = area.offsetHeight;
+  var r = ratios[curR];
+  var bW = Math.floor(aH * r);
+  var bH = aH;
+  if (bW > aW) { bW = aW; bH = Math.floor(aW / r); }
+  box.style.width = bW + 'px';
+  box.style.height = bH + 'px';
 }
 
-function getCamConstraints(){
+function getCamConstraints() {
+  var w = curMP === 12 ? 4032 : 1920;
+  var h = curMP === 12 ? 3024 : 1080;
   return {
-    video:{
-      facingMode:{ideal:facing},
-      width:{ideal:1920},
-      height:{ideal:1080}
+    video: {
+      facingMode: { ideal: facing },
+      width: { ideal: w },
+      height: { ideal: h }
     },
-    audio:false
+    audio: false
   };
 }
 
-async function startCam(){
+async function startCam() {
 
-  try{
+  try {
+
+    if (
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ) {
+      document.getElementById('permtxt').textContent =
+        'このブラウザはカメラに対応していません';
+      return;
+    }
 
     const s = await navigator.mediaDevices.getUserMedia(
       getCamConstraints()
@@ -438,375 +209,276 @@ async function startCam(){
 
     video.srcObject = s;
 
-    await video.play();
+    // iPhone Safari対策
+    await video.play().catch(function(){});
 
-    document.getElementById('perm').style.display='none';
+    document.getElementById('perm').style.display = 'none';
 
-    setTimeout(updateVF,300);
-    setTimeout(checkTorch,500);
+    setTimeout(updateVF, 300);
+    setTimeout(checkTorch, 500);
 
-  }catch(e){
-
-    document.getElementById('permtxt').textContent =
-      'カメラ起動失敗';
+  } catch(e) {
 
     console.log(e);
 
+    document.getElementById('permtxt').textContent =
+      'カメラ起動失敗: ' + e.message;
+
   }
 }
 
-function checkTorch(){
-
-  if(!stream) return;
-
-  const track = stream.getVideoTracks()[0];
-
-  if(!track) return;
-
-  const caps = track.getCapabilities
-    ? track.getCapabilities()
-    : {};
-
+function checkTorch() {
+  if (!stream) return;
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
+  var caps = track.getCapabilities ? track.getCapabilities() : {};
   torchSupported = !!caps.torch;
 }
 
-function toggleTorch(){
-
-  if(!stream) return;
-
-  const track = stream.getVideoTracks()[0];
-
-  if(!track || !torchSupported){
-    alert('ライト非対応');
+function toggleTorch() {
+  if (!stream) return;
+  var track = stream.getVideoTracks()[0];
+  if (!track) return;
+  if (!torchSupported) {
+    alert('このデバイスではライト機能に対応していません');
     return;
   }
-
   torchOn = !torchOn;
-
-  track.applyConstraints({
-    advanced:[{torch:torchOn}]
-  }).then(function(){
-
-    const btn = document.getElementById('torchbtn');
-
-    btn.textContent = torchOn
-      ? '🔦 ON'
-      : '🔦 OFF';
-
-    btn.className = torchOn
-      ? 'p ton'
-      : 'p';
+  track.applyConstraints({ advanced: [{ torch: torchOn }] }).then(function() {
+    var btn = document.getElementById('torchbtn');
+    btn.textContent = torchOn ? '🔦 ON' : '🔦 OFF';
+    btn.className = torchOn ? 'p ton' : 'p';
+  }).catch(function() {
+    torchOn = false;
+    alert('ライトの制御に失敗しました');
   });
 }
 
-function setR(r){
-
+function setR(r) {
   curR = r;
-
-  document.querySelectorAll('#rrow .p')
-    .forEach(function(b){
-
-      b.className =
-        b.textContent === r
-        ? 'p on'
-        : 'p';
-    });
-
+  var btns = document.querySelectorAll('#rrow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === r ? 'p on' : 'p';
+  }
   updateVF();
 }
 
-async function setMP(mp){
-
+function setMP(mp) {
   curMP = mp;
-
-  const btn = {
-    2:'200万',
-    3:'300万',
-    6:'600万',
-    12:'1200万'
-  };
-
-  document.querySelectorAll('#mprow .p')
-    .forEach(function(b){
-
-      b.className =
-        b.textContent === btn[mp]
-        ? 'p on'
-        : 'p';
-    });
-
-  if(stream){
-
-    stream.getTracks().forEach(t=>t.stop());
-
-    const s = await navigator.mediaDevices.getUserMedia(
-      getCamConstraints()
-    );
-
-    stream = s;
-
-    video.srcObject = s;
-
-    await video.play();
-
-    setTimeout(checkTorch,500);
+  var lbl = {2:'約200万画素',3:'約300万画素',5:'約600万画素',12:'約1200万画素'};
+  var btn = {2:'200万',3:'300万',6:'600万',12:'1200万'};
+  var btns = document.querySelectorAll('#mprow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === btn[mp] ? 'p on' : 'p';
+  }
+  if (stream && stream.active) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+    navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+      stream = s;
+      video.srcObject = stream;
+      setTimeout(checkTorch, 500);
+    }).catch(function() {});
   }
 }
 
-function setTSP(p){
-
+function setTSP(p) {
   tsPos = p;
-
-  const map = {
-    left:'左下',
-    center:'中央下',
-    right:'右下'
-  };
-
-  document.querySelectorAll('#tsrow .p')
-    .forEach(function(b){
-
-      if(b.id === 'torchbtn' || b.id === 'tstog') return;
-
-      b.className =
-        b.textContent === map[p]
-        ? 'p on'
-        : 'p';
-    });
+  var m = {left:'左下',center:'中央下',right:'右下'};
+  var btns = document.querySelectorAll('#tsrow .p');
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].className = btns[i].textContent === m[p] ? 'p on' : 'p';
+  }
 }
 
-function toggleTS(){
-
+function toggleTS() {
   tsOn = !tsOn;
-
-  const btn = document.getElementById('tstog');
-
-  btn.textContent = tsOn
-    ? 'TS ON'
-    : 'TS OFF';
-
-  btn.className = tsOn
-    ? 'p on'
-    : 'p';
+  var btn = document.getElementById('tstog');
+  btn.textContent = tsOn ? 'TS ON' : 'TS OFF';
+  btn.className = tsOn ? 'p on' : 'p';
 }
 
-function getTS(){
-
-  const n = new Date();
-
-  const p = v =>
-    String(v).padStart(2,'0');
-
-  return n.getFullYear() + '-'
-    + p(n.getMonth()+1) + '-'
-    + p(n.getDate()) + ' '
-    + p(n.getHours()) + ':'
-    + p(n.getMinutes()) + ':'
-    + p(n.getSeconds());
+function getTS() {
+  var n = new Date();
+  var p = function(v) { return String(v).padStart(2,'0'); };
+  return n.getFullYear()+'-'+p(n.getMonth()+1)+'-'+p(n.getDate())+
+    ' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
 }
 
-function shoot(){
+function shoot() {
+  if (!stream) { startCam(); return; }
+  var vw = video.videoWidth;
+  var vh = video.videoHeight;
+  if (!vw || !vh) return;
 
-  if(!stream){
-    startCam();
-    return;
+  flash.style.opacity = '0.85';
+  setTimeout(function() { flash.style.opacity = '0'; }, 100);
+
+  var sz = mpSz[curMP];
+  var ratio = ratios[curR];
+  var outW = sz.w;
+  var outH = sz.h;
+  if (Math.abs(outW/outH - ratio) > 0.005) {
+    if (outW/outH > ratio) outW = Math.round(outH * ratio);
+    else outH = Math.round(outW / ratio);
   }
 
-  const vw = video.videoWidth;
-  const vh = video.videoHeight;
+  canvas.width = outW;
+  canvas.height = outH;
+  var ctx = canvas.getContext('2d');
+  var isLand = (vw > vh);
 
-  if(!vw || !vh) return;
+  ctx.save();
+  if (isLand) {
+    ctx.translate(outW/2, outH/2);
+    if (facing === 'user') {
+      ctx.rotate(-Math.PI/2);
+      ctx.scale(-1, 1);
+    } else {
+      ctx.rotate(-Math.PI/2);
+    }
+    ctx.drawImage(video, -vw/2, -vh/2, vw, vh);
+  } else {
+    var cR = outW/outH;
+    var vR = vw/vh;
+    var sx, sy, sw, sh;
+    if (vR > cR) { sh=vh; sw=Math.round(vh*cR); sy=0; sx=Math.round((vw-sw)/2); }
+    else { sw=vw; sh=Math.round(vw/cR); sx=0; sy=Math.round((vh-sh)/2); }
+    if (facing === 'user') { ctx.translate(outW,0); ctx.scale(-1,1); }
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, outW, outH);
+  }
+  ctx.restore();
 
-  flash.style.opacity='0.85';
-
-  setTimeout(function(){
-    flash.style.opacity='0';
-  },100);
-
-  const sz = mpSz[curMP];
-
-  canvas.width = sz.w;
-  canvas.height = sz.h;
-
-  const ctx = canvas.getContext('2d');
-
-  ctx.drawImage(video,0,0,sz.w,sz.h);
-
-  if(tsOn){
-
-    const ts = getTS();
-
-    const fs = Math.round(sz.w * 0.036);
-
+  if (tsOn) {
+    var ts = getTS();
+    var fs = Math.round(outW * 0.036);
     ctx.font = 'bold ' + fs + 'px monospace';
-
-    const pad = Math.round(sz.w * 0.035);
-
-    const tw = ctx.measureText(ts).width;
-
-    let tx = pad;
-
-    if(tsPos === 'center'){
-      tx = (sz.w - tw)/2;
-    }
-
-    if(tsPos === 'right'){
-      tx = sz.w - tw - pad;
-    }
-
-    ctx.fillStyle='#FFD700';
-
-    ctx.shadowColor='rgba(0,0,0,.9)';
-    ctx.shadowBlur=fs*0.5;
-
-    ctx.fillText(ts,tx,sz.h-pad);
-
-    ctx.shadowBlur=0;
+    var pad = Math.round(outW * 0.035);
+    var tw = ctx.measureText(ts).width;
+    var tx;
+    if (tsPos === 'left') tx = pad;
+    else if (tsPos === 'center') tx = (outW - tw) / 2;
+    else tx = outW - tw - pad;
+    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = fs * 0.5;
+    ctx.fillStyle = '#FFD700';
+    ctx.fillText(ts, tx, outH - pad);
+    ctx.shadowBlur = 0;
   }
 
-  lastUrl = canvas.toDataURL(
-    'image/jpeg',
-    0.92
-  );
-
-  canvas.toBlob(function(blob){
-
+  lastUrl = canvas.toDataURL('image/jpeg', 0.92);
+  canvas.toBlob(function(blob) {
     lastBlob = blob;
+  }, 'image/jpeg', 0.92);
 
-  },'image/jpeg',0.92);
-
-  document.getElementById('tico').style.display='none';
-
-  const ti = document.getElementById('timg');
-
+  shotN++;
+  var ti = document.getElementById('timg');
+  document.getElementById('tico').style.display = 'none';
   ti.src = lastUrl;
-  ti.style.display='block';
+  ti.style.display = 'block';
 
   openM();
 }
 
-function savePhoto(){
+function savePhoto() {
+  if (!lastUrl) return;
 
-  if(!lastUrl) return;
+  var hint = document.getElementById('save-hint');
 
-  if(navigator.share && lastBlob){
+  if (navigator.share && lastBlob) {
 
-    const file = new File(
+    var file = new File(
       [lastBlob],
-      'photo.jpg',
-      {type:'image/jpeg'}
+      'photo_' + Date.now() + '.jpg',
+      { type: 'image/jpeg' }
     );
 
     navigator.share({
-      files:[file]
-    }).then(function(){
+      files: [file],
+      title: '写真'
+    }).then(function() {
 
-      document.getElementById('save-hint')
-        .textContent =
-        '「写真に保存」を選択してください';
+      hint.textContent =
+        '✅ 共有メニューから「写真に保存」を選んでください';
 
       resetThumb();
 
-    }).catch(function(e){
+    }).catch(function(e) {
 
-      if(e.name !== 'AbortError'){
+      if (e.name !== 'AbortError') {
         fallbackSave();
       }
+
     });
 
-  }else{
+  } else {
 
     fallbackSave();
+
   }
 }
 
-function fallbackSave(){
-
-  const a = document.createElement('a');
-
+function fallbackSave() {
+  var a = document.createElement('a');
   a.href = lastUrl;
-
-  a.download = 'photo.jpg';
-
+  a.download = 'photo_' + Date.now() + '.jpg';
   document.body.appendChild(a);
-
   a.click();
-
-  a.remove();
-
-  resetThumb();
+  document.body.removeChild(a);
 }
 
-function resetThumb(){
 
+function resetThumb() {
   lastUrl = null;
   lastBlob = null;
 
-  document.getElementById('timg')
-    .style.display='none';
-
-  document.getElementById('tico')
-    .style.display='block';
+  document.getElementById('timg').style.display = 'none';
+  document.getElementById('tico').style.display = 'block';
 }
 
-function openM(){
-
-  if(!lastUrl) return;
-
-  document.getElementById('mimg').src =
-    lastUrl;
-
-  document.getElementById('modal')
-    .className='show';
-
-  document.getElementById('save-hint')
-    .textContent='';
+function openM() {
+  if (!lastUrl) return;
+  document.getElementById('mimg').src = lastUrl;
+  document.getElementById('save-hint').textContent = '';
+  document.getElementById('modal').className = 'show';
+}
+function closeM() {
+  document.getElementById('modal').className = '';
 }
 
-function closeM(){
-  document.getElementById('modal')
-    .className='';
-}
-
-async function flipCam(){
-
-  facing =
-    facing === 'environment'
-    ? 'user'
-    : 'environment';
-
-  if(stream){
-    stream.getTracks().forEach(t=>t.stop());
+function flipCam() {
+  if (torchOn) {
+    var track = stream && stream.getVideoTracks()[0];
+    if (track) {
+      try { track.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
+    }
+    torchOn = false;
+    document.getElementById('torchbtn').textContent = '🔦 OFF';
+    document.getElementById('torchbtn').className = 'p';
   }
-
-  const s = await navigator.mediaDevices
-    .getUserMedia(getCamConstraints());
-
-  stream = s;
-
-  video.srcObject = s;
-
-  await video.play();
-
-  setTimeout(checkTorch,500);
+  facing = facing === 'environment' ? 'user' : 'environment';
+  if (stream) {
+    stream.getTracks().forEach(function(t) { t.stop(); });
+    stream = null;
+  }
+  navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
+    stream = s;
+    video.srcObject = stream;
+    setTimeout(checkTorch, 500);
+  }).catch(function() {});
 }
 
-window.addEventListener(
-  'resize',
-  ()=>setTimeout(updateVF,100)
-);
+window.addEventListener('resize', function() { setTimeout(updateVF, 100); });
+window.addEventListener('orientationchange', function() { setTimeout(updateVF, 400); });
+setTimeout(updateVF, 100);
 
-window.addEventListener(
-  'orientationchange',
-  ()=>setTimeout(updateVF,400)
-);
-
-window.addEventListener(
-  'load',
-  ()=>setTimeout(updateVF,100)
-);
+// Safari UIを隠す
+function hideSafariUI() {
+  setTimeout(function() { window.scrollTo(0, 1); }, 100);
+  setTimeout(updateVF, 300);
+}
+window.addEventListener('load', hideSafariUI);
+window.addEventListener('orientationchange', hideSafariUI);
 </script>
-
 </body>
 </html>
-```
