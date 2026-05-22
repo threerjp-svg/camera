@@ -60,11 +60,13 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #shutter::after{content:'';width:56px;height:56px;border-radius:50%;background:#fff;}
 #flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #zoom-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.15);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;}
-#modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;}
+/* 全体の隙間（gap）を12pxから6pxに縮め、上下のパディングも最小限にしてスペースを確保します */
+#modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.95);flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px 6px;}
 #modal.show{display:flex;}
 #batch-modal.show{display:flex;}
-/* 写真の最大縦幅を 58vh から 72vh へ広げて大きく表示させます */
-#mimg{max-width:100%;max-height:72vh;border-radius:10px;object-fit:contain;}
+/* 写真の最大縦幅を 72vh から「82vh」まで拡大。横幅も画面幅いっぱいに広げます */
+#mimg{max-width:100%;width:100vw;max-height:82vh;border-radius:6px;object-fit:contain;}
+
 #modal .msg{display:none;} /* 不要なテキスト用のスタイルを非表示に設定 */
 #modal .sub{display:none;}
 /* ボタンの色を royalblue へ、文字色を白(#fff)へ変更します */
