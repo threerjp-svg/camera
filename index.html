@@ -65,10 +65,47 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #zoom-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 
-#modal{position:fixed;inset:0;background:#000;z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px env(safe-area-inset-bottom);}
-#m-box{width:100%;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;}
-#m-img{max-width:100%;max-height:100%;object-fit:contain;display:block;user-select:auto;-webkit-user-select:auto;}
-#m-ctrl{width:100%;padding:16px 24px;display:flex;justify-content:center;align-items:center;flex-shrink:0;}
+#modal{
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:100;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:0; /* ★周りの余白をゼロにして全画面化 */
+}
+#m-box{
+  width:100%;
+  flex:1;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+  background:#000;
+}
+#m-img{
+  width:100%;  /* ★横幅いっぱいに拡大 */
+  height:100%; /* ★縦幅いっぱいに拡大 */
+  object-fit:contain; /* 縦横比を崩さず、画面に収まる最大サイズにする */
+  display:block;
+  user-select:auto;
+  -webkit-user-select:auto;
+}
+#m-ctrl{
+  width:100%;
+  padding:12px 24px calc(12px + env(safe-area-inset-bottom)); /* 下部のセーフエリアを考慮 */
+  background:#080808; /* ボタンの後ろを少し暗くして画像と区別 */
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-shrink:0;
+  border-top:0.5px solid rgba(255,255,255,0.1);
+}
+
 .m-btn{flex:1;max-width:320px;height:50px;border-radius:25px;font-size:16px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
 #m-cancel{background:#4169e1;color:#fff;}
 </style>
