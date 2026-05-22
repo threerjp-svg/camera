@@ -103,20 +103,20 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
     <div class="sep"></div>
     <!-- 2段目: 画素数 -->
     <div class="row" id="mprow">
-      <button class="p" onclick="setMP(2)">2MP</button>
-      <button class="p on" onclick="setMP(3)">3MP</button>
-      <button class="p" onclick="setMP(6)">6MP</button>
-      <button class="p" onclick="setMP(12)">12MP</button>
+      <button class="p" onclick="setMP(2)">200万</button>
+      <button class="p on" onclick="setMP(3)">300万</button>
+      <button class="p" onclick="setMP(6)">600万</button>
+      <button class="p" onclick="setMP(12)">1200万</button>
     </div>
     <div class="sep"></div>
-    <!-- 3段目: タイムスタンプ位置 + TS ON/OFF -->
+    <!-- 3段目: タイムスタンプ位置 + TS ON/OFF + ライト(Flash) -->
     <div class="row" id="tsrow">
       <button class="p on" id="tstog" onclick="toggleTS()">TS ON</button>
       <button class="p on" onclick="setTSP('left')">Left</button>
       <button class="p" onclick="setTSP('center')">Center</button>
       <button class="p" onclick="setTSP('right')">Right</button>
-      <!-- 自動連動フラッシュになったため、旧ライトボタンは非表示（Flash表記） -->
-      <button id="torchbtn" style="display:none;">Flash</button> 
+      <!-- ライト常時点灯用のボタン（ボタン名はFlashに設定） -->
+      <button id="torchbtn" class="p" onclick="toggleTorch()">Flash</button> 
     </div>
     <div class="sep"></div>
     <div id="srow">
@@ -229,27 +229,30 @@ function checkTorch() {
   if (!track) return;
   var caps = track.getCapabilities ? track.getCapabilities() : {};
   torchSupported = !!caps.torch;
+  
+  // 起動時にボタンの状態をリセット
+  var btn = document.getElementById('torchbtn');
+  btn.className = 'p';
+  torchOn = false;
 }
 
-// 背面LEDライト制御用の単機能関数
-async function turnOnLed() {
-  if (!stream || !torchSupported) return;
+// 常時点灯用トグル関数（ボタン名：Flash、ONの時に黄色く変化）
+function toggleTorch() {
+  if (!stream) return;
   var track = stream.getVideoTracks()[0];
   if (!track) return;
-  try {
-    await track.applyConstraints({ advanced: [{ torch: true }] });
-    torchOn = true;
-  } catch(e) { console.log("LED ON failed:", e); }
-}
-
-async function turnOffLed() {
-  if (!stream || !torchSupported) return;
-  var track = stream.getVideoTracks()[0];
-  if (!track) return;
-  try {
-    await track.applyConstraints({ advanced: [{ torch: false }] });
+  if (!torchSupported) {
+    alert('このデバイスはライト機能に対応していないか、インカメラに設定されています');
+    return;
+  }
+  torchOn = !torchOn;
+  track.applyConstraints({ advanced: [{ torch: torchOn }] }).then(function() {
+    var btn = document.getElementById('torchbtn');
+    btn.className = torchOn ? 'p ton' : 'p';
+  }).catch(function() {
     torchOn = false;
-  } catch(e) { console.log("LED OFF failed:", e); }
+    alert('ライトの制御に失敗しました');
+  });
 }
 
 function setR(r) {
@@ -302,24 +305,17 @@ function getTS() {
     ' '+p(n.getHours())+':'+p(n.getMinutes())+':'+p(n.getSeconds());
 }
 
-// シャッター関数（フラッシュ自動連動）
-async function shoot() {
+// シャッター関数（常時点灯のまま撮影するため自動ON/OFFは排除）
+function shoot() {
   if (!stream) { startCam(); return; }
   var vw = video.videoWidth;
   var vh = video.videoHeight;
   if (!vw || !vh) return;
 
-  // 1. シャッターの瞬間に背面のLEDライトをON
-  if (torchSupported) {
-    await turnOnLed();
-    await new Promise(resolve => setTimeout(resolve, 100)); 
-  }
-
-  // 液晶擬似フラッシュアニメーション
+  // 液晶擬似フラッシュアニメーションのみ実行
   flash.style.opacity = '0.85';
   setTimeout(function() { flash.style.opacity = '0'; }, 100);
 
-  // キャンバスへの描画・写真生成処理
   var sz = mpSz[curMP];
   var ratio = ratios[curR];
   var outW = sz.w;
@@ -376,11 +372,6 @@ async function shoot() {
   canvas.toBlob(function(blob) {
     lastBlob = blob;
   }, 'image/jpeg', 0.92);
-
-  // 2. 写真データ化が終わったらLEDライトをOFF
-  if (torchSupported) {
-    turnOffLed();
-  }
 
   shotN++;
   var ti = document.getElementById('timg');
@@ -447,6 +438,7 @@ function flipCam() {
       try { track.applyConstraints({ advanced: [{ torch: false }] }); } catch(e) {}
     }
     torchOn = false;
+    document.getElementById('torchbtn').className = 'p';
   }
   facing = facing === 'environment' ? 'user' : 'environment';
   if (stream) {
@@ -455,7 +447,7 @@ function flipCam() {
   }
   navigator.mediaDevices.getUserMedia(getCamConstraints()).then(function(s) {
     stream = s;
-    video.srcObject = stream;
+    video.srcObject = s;
     setTimeout(checkTorch, 500);
   }).catch(function() {});
 }
