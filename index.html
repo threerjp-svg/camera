@@ -178,10 +178,11 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   <div id="m-box">
     <img id="m-img" alt="プレビュー"/>
   </div>
-  <div id="m-ctrl">
+<div id="m-ctrl">
     <button id="m-cancel" class="m-btn" onclick="closeModal()">Redo</button>
+    <!-- ★右側に長押し用のボタンを追加（スタイルで長押しを許可） -->
+    <div id="m-save-btn" class="m-btn" style="background:#222; color:#fff; margin-left:12px; user-select:auto; -webkit-user-select:auto;">ここを長押しで保存</div>
   </div>
-</div>
 
 <canvas id="canvas"></canvas>
 
@@ -490,23 +491,35 @@ function closeModal() {
 // --- 長押し開始から一定時間後に自動で確認画面を閉じる（Redo）処理 ---
 var autoRedoTimer = null;
 var previewImage = document.getElementById('m-img');
+var saveBtn = document.getElementById('m-save-btn'); // ★新しく追加するボタンを取得
 
-// 画像に指が触れたらタイマーを開始
-previewImage.addEventListener('touchstart', function() {
+// 長押しタイマーを開始する共通の処理
+function startPressTimer() {
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
   
   // 3000ms = 3秒後に自動で確認画面を閉じる
   autoRedoTimer = setTimeout(function() {
     closeModal(); 
   }, 3000);
-});
+}
 
-// 指が離れた時はタイマーをキャンセル
-previewImage.addEventListener('touchend', function() {
+// 指が離れた時にタイマーをキャンセルする共通の処理
+function cancelPressTimer() {
   if (autoRedoTimer) {
     clearTimeout(autoRedoTimer);
     autoRedoTimer = null;
   }
+}
+
+// 【画像】に指が触れた時・離れた時のイベント
+previewImage.addEventListener('touchstart', startPressTimer);
+previewImage.addEventListener('touchend', cancelPressTimer);
+
+// 【新ボタン】に指が触れた時・離れた時のイベント（★ここを追加）
+if (saveBtn) {
+  saveBtn.addEventListener('touchstart', startPressTimer);
+  saveBtn.addEventListener('touchend', cancelPressTimer);
+}
 });
 
 window.addEventListener('resize', function() { setTimeout(updateVF, 100); });
