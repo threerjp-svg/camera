@@ -35,7 +35,19 @@ body{
   background:#0d1117;
   align-items:center;
 }
-#vf-area{width:100%;flex:1;min-height:0;position:relative;background:#0d1117;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+/* ★撮影画面が上に寄りすぎないよう、上部に余白を確保して中央に配置 */
+#vf-area {
+  width:100%;
+  flex:1;
+  min-height:0;
+  position:relative;
+  background:#0d1117;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  padding-top:20px; 
+}
 #vf-box{position:relative;background:#010409;overflow:hidden;border-radius:12px;border:1px solid #30363d;}
 #video{width:100%;height:100%;object-fit:cover;display:block;}
 #video::-webkit-media-controls { display:none !important; }
@@ -48,7 +60,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#8b949e;font-size:14px;text-align:center;padding:32px;z-index:20;background:#0d1117;}
 #start-btn{background:#238636;color:#ffffff;border:1px solid rgba(240,246,252,0.1);border-radius:6px;padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
 
-/* GitHub Dark default スタイルのコントロールパネル */
 #ctrl{
   width:100%;
   background:#161b22;
@@ -61,7 +72,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 }
 .row{display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap;}
 
-/* GitHubスタイルボタン */
 .p{
   background:#21262d;
   border:1px solid #30363d;
@@ -74,33 +84,27 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   white-space:nowrap;
   transition: background-color 0.1s, border-color 0.1s;
 }
-/* アクティブ（ON）状態：GitHubのプライマリ青ボタン風 */
 .p.on {
   background:#1f6feb;
   color:#ffffff;
   border-color:#388bfd;
 }
-/* タイムスタンプON等の特別状態：GitHubの警告・強調黄ベース */
 .p.ton {
   background:#9e6a03;
   color:#ffffff;
   border-color:#d29922;
 }
-/* 区切り線（GitHub border-muted） */
 .sep{height:1px;background:#30363d;width:100%;margin:2px 0;}
 
 #srow{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 0;width:100%;max-width:440px;margin:0 auto;}
 
-/* サムネイル枠 */
 #thumb{width:48px;height:48px;border-radius:6px;background:#0d1117;overflow:hidden;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #timg{width:100%;height:100%;object-fit:cover;display:none;}
 
-/* GitHub風に少し角を落とした丸みを持つ円形シャッターボタン */
 #shutter{width:68px;height:68px;border-radius:50%;background:transparent;border:4px solid #f0f6fc;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.08s;position:relative;}
 #shutter:active{transform:scale(0.92);}
 #shutter::after{content:'';width:50px;height:50px;border-radius:50%;background:#f0f6fc;}
 
-/* 丸型サブボタン（フリップ・ズーム） */
 #flip{width:44px;height:44px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #zoom-btn{width:44px;height:44px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;color:#c9d1d9;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;}
 
@@ -146,7 +150,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 }
 
 .m-btn{flex:1;max-width:320px;height:46px;border-radius:6px;font-size:15px;font-weight:600;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
-/* モーダルのRedoボタンは元のロイヤルブルーのイメージを残しつつGitHubの青（#1f6feb）へ */
 #m-cancel{background:#1f6feb;color:#ffffff;border-color:#388bfd;}
 </style>
 </head>
@@ -256,7 +259,7 @@ function updateVF() {
   var box = document.getElementById('vf-box');
   if(!area || !box) return;
   var aW = area.offsetWidth;
-  var aH = area.offsetHeight;
+  var aH = area.offsetHeight - 20; /* パディング分を考慮 */
   var r = ratios[curR];
   var bW = Math.floor(aH * r);
   var bH = aH;
