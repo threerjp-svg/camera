@@ -35,7 +35,19 @@ body{
   background:#0d1117;
   align-items:center;
 }
-#vf-area{width:100%;flex:1;min-height:0;position:relative;background:#0d1117;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+/* ★ align-items: flex-end に変更し、上部に大きな余白（padding-top）を設けてプレビューを強制的に下げます */
+#vf-area {
+  width:100%;
+  flex:1;
+  min-height:0;
+  position:relative;
+  background:#0d1117;
+  display:flex;
+  align-items:flex-end; 
+  justify-content:center;
+  overflow:hidden;
+  padding-top:40px; 
+}
 #vf-box{position:relative;background:#010409;overflow:hidden;border-radius:12px;border:1px solid #30363d;}
 #video{width:100%;height:100%;object-fit:cover;display:block;}
 #video::-webkit-media-controls { display:none !important; }
@@ -48,61 +60,56 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#8b949e;font-size:14px;text-align:center;padding:32px;z-index:20;background:#0d1117;}
 #start-btn{background:#238636;color:#ffffff;border:1px solid rgba(240,246,252,0.1);border-radius:6px;padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
 
-/* GitHub Dark default スタイルのコントロールパネル */
+/* ★ 下部コントロールパネル全体の隙間を極限まで縮小 */
 #ctrl{
   width:100%;
   background:#161b22;
-  padding:10px 14px calc(12px + env(safe-area-inset-bottom));
+  padding:6px 14px calc(8px + env(safe-area-inset-bottom));
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:4px;
   flex-shrink:0;
   border-top:1px solid #30363d;
 }
-.row{display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap;}
+.row{display:flex;justify-content:center;gap:6px;align-items:center;flex-wrap:wrap;}
 
-/* GitHubスタイルボタン */
+/* ★ 選択ボタンの上下パディングを詰めてコンパクトに */
 .p{
   background:#21262d;
   border:1px solid #30363d;
   color:#c9d1d9;
   border-radius:6px;
-  padding:6px 14px;
+  padding:4px 12px;
   font-size:12px;
   font-weight:500;
   cursor:pointer;
   white-space:nowrap;
   transition: background-color 0.1s, border-color 0.1s;
 }
-/* アクティブ（ON）状態：GitHubのプライマリ青ボタン風 */
 .p.on {
   background:#1f6feb;
   color:#ffffff;
   border-color:#388bfd;
 }
-/* タイムスタンプON等の特別状態：GitHubの警告・強調黄ベース */
 .p.ton {
   background:#9e6a03;
   color:#ffffff;
   border-color:#d29922;
 }
-/* 区切り線（GitHub border-muted） */
-.sep{height:1px;background:#30363d;width:100%;margin:2px 0;}
+.sep{height:1px;background:#30363d;width:100%;margin:1px 0;}
 
-#srow{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 0;width:100%;max-width:440px;margin:0 auto;}
+#srow{display:flex;align-items:center;justify-content:space-between;padding:2px 6px 0;width:100%;max-width:440px;margin:0 auto;}
 
-/* サムネイル枠 */
-#thumb{width:48px;height:48px;border-radius:6px;background:#0d1117;overflow:hidden;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#thumb{width:44px;height:44px;border-radius:6px;background:#0d1117;overflow:hidden;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #timg{width:100%;height:100%;object-fit:cover;display:none;}
 
-/* GitHub風に少し角を落とした丸みを持つ円形シャッターボタン */
-#shutter{width:68px;height:68px;border-radius:50%;background:transparent;border:4px solid #f0f6fc;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.08s;position:relative;}
+/* ★ シャッターボタンを少しだけ小ぶりにし、余白を削減 */
+#shutter{width:62px;height:62px;border-radius:50%;background:transparent;border:4px solid #f0f6fc;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.08s;position:relative;}
 #shutter:active{transform:scale(0.92);}
-#shutter::after{content:'';width:50px;height:50px;border-radius:50%;background:#f0f6fc;}
+#shutter::after{content:'';width:46px;height:46px;border-radius:50%;background:#f0f6fc;}
 
-/* 丸型サブボタン（フリップ・ズーム） */
-#flip{width:44px;height:44px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-#zoom-btn{width:44px;height:44px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;color:#c9d1d9;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;}
+#flip{width:40px;height:40px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#zoom-btn{width:40px;height:40px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;color:#c9d1d9;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;}
 
 #modal{
   position:fixed;
@@ -146,7 +153,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 }
 
 .m-btn{flex:1;max-width:320px;height:46px;border-radius:6px;font-size:15px;font-weight:600;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
-/* モーダルのRedoボタンは元のロイヤルブルーのイメージを残しつつGitHubの青（#1f6feb）へ */
 #m-cancel{background:#1f6feb;color:#ffffff;border-color:#388bfd;}
 </style>
 </head>
@@ -256,7 +262,7 @@ function updateVF() {
   var box = document.getElementById('vf-box');
   if(!area || !box) return;
   var aW = area.offsetWidth;
-  var aH = area.offsetHeight;
+  var aH = area.offsetHeight - 40; /* ★上部パディング(40px)を考慮 */
   var r = ratios[curR];
   var bW = Math.floor(aH * r);
   var bH = aH;
@@ -339,7 +345,7 @@ function setR(r) {
 
 function setMP(mp) {
   curMP = mp;
-  var btn = {2:'2MP',3:'3MP',6:'6MP',12:'12MP'};
+  var btn = {2:'200万',3:'300万',6:'600万',12:'1200万'};
   var btns = document.querySelectorAll('#mprow .p');
   for (var i = 0; i < btns.length; i++) {
     btns[i].className = btns[i].textContent === btn[mp] ? 'p on' : 'p';
