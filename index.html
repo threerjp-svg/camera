@@ -6,9 +6,9 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-touch-fullscreen" content="yes">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#0d1117">
 
 <link rel="manifest" href="manifest.json">
 
@@ -17,13 +17,13 @@
 <title>カメラ</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{width:100%;height:100%;background:#000;}
+html{width:100%;height:100%;background:#0d1117;}
 body{
   width:100%;
   height:100vh;
-  background:#000;
+  background:#0d1117;
   overflow:hidden;
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
 }
@@ -32,11 +32,11 @@ body{
   height:100dvh;
   display:flex;
   flex-direction:column;
-  background:#000;
+  background:#0d1117;
   align-items:center;
 }
-#vf-area{width:100%;flex:1;min-height:0;position:relative;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden;}
-#vf-box{position:relative;background:#000;overflow:hidden;}
+#vf-area{width:100%;flex:1;min-height:0;position:relative;background:#0d1117;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#vf-box{position:relative;background:#010409;overflow:hidden;border-radius:12px;border:1px solid #30363d;}
 #video{width:100%;height:100%;object-fit:cover;display:block;}
 #video::-webkit-media-controls { display:none !important; }
 #video::-webkit-media-controls-enclosure { display:none !important; }
@@ -45,36 +45,75 @@ body{
 video::-webkit-media-controls-overlay-play-button { display:none !important; }
 #canvas{display:none;}
 #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:10;}
-#perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:rgba(255,255,255,0.7);font-size:14px;text-align:center;padding:32px;z-index:20;background:#000;}
-#start-btn{background:#fff;color:#000;border:none;border-radius:28px;padding:14px 32px;font-size:15px;font-weight:600;cursor:pointer;margin-top:8px;}
+#perm{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#8b949e;font-size:14px;text-align:center;padding:32px;z-index:20;background:#0d1117;}
+#start-btn{background:#238636;color:#ffffff;border:1px solid rgba(240,246,252,0.1);border-radius:6px;padding:12px 28px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;}
 
-#ctrl{width:100%;background:#080808;padding:6px 14px env(safe-area-inset-bottom);display:flex;flex-direction:column;gap:6px;flex-shrink:0;border-top:0.5px solid rgba(255,255,255,0.05);}
-.row{display:flex;justify-content:center;gap:6px;align-items:center;flex-wrap:wrap;}
+/* GitHub Dark default スタイルのコントロールパネル */
+#ctrl{
+  width:100%;
+  background:#161b22;
+  padding:10px 14px calc(12px + env(safe-area-inset-bottom));
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  flex-shrink:0;
+  border-top:1px solid #30363d;
+}
+.row{display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap;}
 
-.p{background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.15);color:#fff;border-radius:16px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.1s;}
-.p.on{background:#fff;color:#000;border-color:#fff;}
-.p.ton{background:#FFD700;color:#000;border-color:#FFD700;}
-.sep{height:0.5px;background:rgba(255,255,255,0.05);}
+/* GitHubスタイルボタン */
+.p{
+  background:#21262d;
+  border:1px solid #30363d;
+  color:#c9d1d9;
+  border-radius:6px;
+  padding:6px 14px;
+  font-size:12px;
+  font-weight:500;
+  cursor:pointer;
+  white-space:nowrap;
+  transition: background-color 0.1s, border-color 0.1s;
+}
+/* アクティブ（ON）状態：GitHubのプライマリ青ボタン風 */
+.p.on {
+  background:#1f6feb;
+  color:#ffffff;
+  border-color:#388bfd;
+}
+/* タイムスタンプON等の特別状態：GitHubの警告・強調黄ベース */
+.p.ton {
+  background:#9e6a03;
+  color:#ffffff;
+  border-color:#d29922;
+}
+/* 区切り線（GitHub border-muted） */
+.sep{height:1px;background:#30363d;width:100%;margin:2px 0;}
 
-#srow{display:flex;align-items:center;justify-content:space-between;padding:6px 6px 2px;}
-#thumb{width:48px;height:48px;border-radius:10px;background:rgba(255,255,255,0.05);overflow:hidden;border:1px solid rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#srow{display:flex;align-items:center;justify-content:space-between;padding:4px 6px 0;width:100%;max-width:440px;margin:0 auto;}
+
+/* サムネイル枠 */
+#thumb{width:48px;height:48px;border-radius:6px;background:#0d1117;overflow:hidden;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 #timg{width:100%;height:100%;object-fit:cover;display:none;}
-#shutter{width:72px;height:72px;border-radius:50%;background:transparent;border:4px solid #fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.08s;position:relative;}
-#shutter:active{transform:scale(0.90);}
-#shutter::after{content:'';width:56px;height:56px;border-radius:50%;background:#fff;}
-#flip{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-#zoom-btn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,0.12);border:none;cursor:pointer;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+
+/* GitHub風に少し角を落とした丸みを持つ円形シャッターボタン */
+#shutter{width:68px;height:68px;border-radius:50%;background:transparent;border:4px solid #f0f6fc;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform 0.08s;position:relative;}
+#shutter:active{transform:scale(0.92);}
+#shutter::after{content:'';width:50px;height:50px;border-radius:50%;background:#f0f6fc;}
+
+/* 丸型サブボタン（フリップ・ズーム） */
+#flip{width:44px;height:44px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+#zoom-btn{width:44px;height:44px;border-radius:6px;background:#21262d;border:1px solid #30363d;cursor:pointer;color:#c9d1d9;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;}
 
 #modal{
   position:fixed;
   inset:0;
-  background:#000;
+  background:#0d1117;
   z-index:100;
   display:none;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding:0; /* ★確認画像が最大サイズで表示される設定を維持 */
+  padding:0;
 }
 #m-box{
   width:100%;
@@ -85,7 +124,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   justify-content:center;
   overflow:hidden;
   position:relative;
-  background:#000;
+  background:#0d1117;
 }
 #m-img{
   width:100%;
@@ -97,17 +136,18 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 }
 #m-ctrl{
   width:100%;
-  padding:12px 24px calc(12px + env(safe-area-inset-bottom));
-  background:#080808;
+  padding:16px 24px calc(16px + env(safe-area-inset-bottom));
+  background:#161b22;
   display:flex;
   justify-content:center;
   align-items:center;
   flex-shrink:0;
-  border-top:0.5px solid rgba(255,255,255,0.1);
+  border-top:1px solid #30363d;
 }
 
-.m-btn{flex:1;max-width:320px;height:50px;border-radius:25px;font-size:16px;font-weight:600;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
-#m-cancel{background:#4169e1;color:#fff;}
+.m-btn{flex:1;max-width:320px;height:46px;border-radius:6px;font-size:15px;font-weight:600;border:1px solid #30363d;cursor:pointer;display:flex;align-items:center;justify-content:center;text-decoration:none;}
+/* モーダルのRedoボタンは元のロイヤルブルーのイメージを残しつつGitHubの青（#1f6feb）へ */
+#m-cancel{background:#1f6feb;color:#ffffff;border-color:#388bfd;}
 </style>
 </head>
 <body>
@@ -117,7 +157,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
       <video id="video" autoplay playsinline muted webkit-playsinline></video>
       <div id="flash"></div>
       <div id="perm">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.3">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8b949e" stroke-width="1.3">
           <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
           <circle cx="12" cy="13" r="4"/>
         </svg>
@@ -153,7 +193,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
     <div id="srow">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
         <div id="thumb" onclick="openLastShot()">
-          <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5">
+          <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b949e" stroke-width="1.5">
             <rect x="3" y="3" width="18" height="18" rx="3"/>
             <path d="M3 9l4-4 4 4 4-6 4 6"/>
           </svg>
@@ -163,7 +203,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
       <button id="zoom-btn" onclick="toggleZoom()">1x</button>
       <button id="shutter" onclick="shoot()"></button>
       <button id="flip" onclick="flipCam()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c9d1d9" stroke-width="1.8">
           <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
           <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
         </svg>
@@ -172,7 +212,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   </div>
 </div>
 
-<!-- 確認画面（Redoボタン1つのみのシンプルな構成に戻しました） -->
+<!-- 確認画面 -->
 <div id="modal">
   <div id="m-box">
     <img id="m-img" alt="プレビュー"/>
@@ -484,14 +524,11 @@ function closeModal() {
   modal.style.display = 'none';
 }
 
-// --- 長押し開始から一定時間後に自動で確認画面を閉じる（Redo）処理 ---
 var autoRedoTimer = null;
 var previewImage = document.getElementById('m-img');
 
 function startPressTimer() {
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
-  
-  // 2000ms = 2秒後に自動で確認画面を閉じる
   autoRedoTimer = setTimeout(function() {
     closeModal(); 
   }, 2000);
@@ -504,7 +541,6 @@ function cancelPressTimer() {
   }
 }
 
-// プレビュー画像自体を長押しした時のタイマー処理のみを残しました
 previewImage.addEventListener('touchstart', startPressTimer);
 previewImage.addEventListener('touchend', cancelPressTimer);
 
