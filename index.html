@@ -498,10 +498,10 @@ var saveBtn = document.getElementById('m-save-btn'); // ★新しく追加する
 function startPressTimer() {
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
   
-  // 3000ms = 3秒後に自動で確認画面を閉じる
+  // 2000ms = 2秒後に自動で確認画面を閉じる
   autoRedoTimer = setTimeout(function() {
     closeModal(); 
-  }, 3000);
+  }, 2000);
 }
 
 // 指が離れた時にタイマーをキャンセルする共通の処理
