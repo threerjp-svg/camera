@@ -152,7 +152,6 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
     <div class="sep"></div>
     <div id="srow">
       <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-        <!-- サムネイルタップ時の大きく開く動作（パターンA）を残しています -->
         <div id="thumb" onclick="openLastShot()">
           <svg id="tico" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5">
             <rect x="3" y="3" width="18" height="18" rx="3"/>
@@ -178,9 +177,9 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   <div id="m-box">
     <img id="m-img" alt="プレビュー"/>
   </div>
-<div id="m-ctrl">
+  <div id="m-ctrl">
     <button id="m-cancel" class="m-btn" onclick="closeModal()">Redo</button>
-    <!-- ★右側に長押し用のボタンを追加 -->
+    <!-- 右側に長押し用のボタンを追加 -->
     <div id="m-save-btn" class="m-btn" style="background:#222; color:#fff; margin-left:12px; user-select:auto; -webkit-user-select:auto;">ここを長押しで保存</div>
   </div>
 </div>
@@ -410,7 +409,6 @@ function shoot() {
   ti.src = lastUrl;
   ti.style.display = 'block';
   
-  // 大きく確認したい時のために、バックグラウンドのモーダル用画像も更新
   mImg.src = lastUrl; 
 }
 
@@ -479,7 +477,6 @@ async function toggleZoom() {
   }
 }
 
-// サムネイルをタップした時に確認モーダルを開く関数
 function openLastShot() {
   if (!lastUrl) return;
   modal.style.display = 'flex';
@@ -492,9 +489,8 @@ function closeModal() {
 // --- 長押し開始から一定時間後に自動で確認画面を閉じる（Redo）処理 ---
 var autoRedoTimer = null;
 var previewImage = document.getElementById('m-img');
-var saveBtn = document.getElementById('m-save-btn'); // ★新しく追加するボタンを取得
+var saveBtn = document.getElementById('m-save-btn');
 
-// 長押しタイマーを開始する共通の処理
 function startPressTimer() {
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
   
@@ -504,7 +500,6 @@ function startPressTimer() {
   }, 2000);
 }
 
-// 指が離れた時にタイマーをキャンセルする共通の処理
 function cancelPressTimer() {
   if (autoRedoTimer) {
     clearTimeout(autoRedoTimer);
@@ -512,16 +507,13 @@ function cancelPressTimer() {
   }
 }
 
-// 【画像】に指が触れた時・離れた時のイベント
 previewImage.addEventListener('touchstart', startPressTimer);
 previewImage.addEventListener('touchend', cancelPressTimer);
 
-// 【新ボタン】に指が触れた時・離れた時のイベント（★ここを追加）
 if (saveBtn) {
   saveBtn.addEventListener('touchstart', startPressTimer);
   saveBtn.addEventListener('touchend', cancelPressTimer);
 }
-});
 
 window.addEventListener('resize', function() { setTimeout(updateVF, 100); });
 window.addEventListener('orientationchange', function() { setTimeout(updateVF, 400); });
