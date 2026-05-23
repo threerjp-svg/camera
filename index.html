@@ -74,7 +74,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding:0; /* ★周りの余白をゼロにして全画面化 */
+  padding:0; /* ★確認画像が最大サイズで表示される設定を維持 */
 }
 #m-box{
   width:100%;
@@ -88,17 +88,17 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   background:#000;
 }
 #m-img{
-  width:100%;  /* ★横幅いっぱいに拡大 */
-  height:100%; /* ★縦幅いっぱいに拡大 */
-  object-fit:contain; /* 縦横比を崩さず、画面に収まる最大サイズにする */
+  width:100%;
+  height:100%;
+  object-fit:contain;
   display:block;
   user-select:auto;
   -webkit-user-select:auto;
 }
 #m-ctrl{
   width:100%;
-  padding:12px 24px calc(12px + env(safe-area-inset-bottom)); /* 下部のセーフエリアを考慮 */
-  background:#080808; /* ボタンの後ろを少し暗くして画像と区別 */
+  padding:12px 24px calc(12px + env(safe-area-inset-bottom));
+  background:#080808;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -172,15 +172,13 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   </div>
 </div>
 
-<!-- 確認画面 -->
+<!-- 確認画面（Redoボタン1つのみのシンプルな構成に戻しました） -->
 <div id="modal">
   <div id="m-box">
     <img id="m-img" alt="プレビュー"/>
   </div>
   <div id="m-ctrl">
     <button id="m-cancel" class="m-btn" onclick="closeModal()">Redo</button>
-    <!-- 右側に長押し用のボタンを追加 -->
-    <div id="m-save-btn" class="m-btn" style="background:#222; color:#fff; margin-left:12px; user-select:auto; -webkit-user-select:auto;">ここを長押しで保存</div>
   </div>
 </div>
 
@@ -234,7 +232,7 @@ function getCamConstraints() {
     video: {
       facingMode: { ideal: facing },
       width: { ideal: w },
-      height: { ideal: h },
+      height: { hId: h },
       imageStabilizationMode: { ideal: "standard" }
     },
     audio: false
@@ -489,7 +487,6 @@ function closeModal() {
 // --- 長押し開始から一定時間後に自動で確認画面を閉じる（Redo）処理 ---
 var autoRedoTimer = null;
 var previewImage = document.getElementById('m-img');
-var saveBtn = document.getElementById('m-save-btn');
 
 function startPressTimer() {
   if (autoRedoTimer) clearTimeout(autoRedoTimer);
@@ -507,13 +504,9 @@ function cancelPressTimer() {
   }
 }
 
+// プレビュー画像自体を長押しした時のタイマー処理のみを残しました
 previewImage.addEventListener('touchstart', startPressTimer);
 previewImage.addEventListener('touchend', cancelPressTimer);
-
-if (saveBtn) {
-  saveBtn.addEventListener('touchstart', startPressTimer);
-  saveBtn.addEventListener('touchend', cancelPressTimer);
-}
 
 window.addEventListener('resize', function() { setTimeout(updateVF, 100); });
 window.addEventListener('orientationchange', function() { setTimeout(updateVF, 400); });
